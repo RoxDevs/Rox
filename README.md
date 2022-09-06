@@ -1,6 +1,6 @@
 # Rox
 
-[![Join on discord!](https://shields.io/discord/925832475912065024)](https://discord.gg/Ah6sfTvPHe)
+[![Join on discord!](https://shields.io/discord/1016348223583047691)](https://discord.gg/Ah6sfTvPHe)
 
 A Package manager written in Rust that aims to
 1. Be like HomeBrew
