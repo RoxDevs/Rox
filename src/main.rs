@@ -1,14 +1,20 @@
-use clap::parser;
-#{derive(parser,debug)}
-#{clap(RK33DV&muppi090909,0.1,package manager written in rust,long_about = none)}
+use clap::Parser;
 
-struct Args {
-	
-	#{clap(short, long, value_praser, deafault_value_t = 1)}
-	
-	
+#[derive(Parser, Debug)]
+#[clap(about, version, author)]
+struct Values {
+   #[clap(short = 'o', long)]
+   desiredpackage: String,
 }
 
-//fn main() {
-    //println!("Hello, worffffld!");
-//}
+fn main() {
+   let value = Values::parse();
+
+   let value = value.desiredpackage;
+
+   let installer = value;
+
+   println!("Downloading {}", installer);
+   println!("Installing {}", installer);
+   println!("success!")
+}
