@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 use clap::Parser;
 mod parser;
 
@@ -7,8 +6,6 @@ mod parser;
 struct Values {
    #[clap(short = 'o', long)]
    desiredpackage: String,
-
->>>>>>> d2e4ac9 (stash)
 }
 
 fn main() {
