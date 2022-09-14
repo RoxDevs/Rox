@@ -6,6 +6,7 @@ homepage = "https://github.com/muppi090909/Rox"
 license = "GPL-2.0-only"
 authors = [ "Ishaan Subramanya" ]
 documentation = "https://docs.rs/Rox/0.1.0/Rox/"
+exclude = ["tomls/*", "tomls/"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
