@@ -1,0 +1,8 @@
+tarball = "www"
+mac = true
+win = false
+linux = true
+dependencies = []
+major = "0"
+minor = "1"
+rev = "0"

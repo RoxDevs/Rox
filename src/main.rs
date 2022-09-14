@@ -1,4 +1,5 @@
 use clap::Parser;
+mod parser;
 
 #[derive(Parser, Debug)]
 #[clap(about, version, author)]
