@@ -34,7 +34,7 @@ fn main() {
         }
         Commands::Remove { package } => {
             println!("Removing source code...");
-            fs::remove_dir_("RoxPaks")
+            fs::remove_dir_all("RoxPaks")
             .expect("Error removing source code :(");
          println!("source code removed successfully!");
     }
