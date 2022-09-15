@@ -16,6 +16,6 @@ status = early development
 4. the gui
 
 # currently being developed by
-1. @muppi090909
-2. @RK33DV
+1. muppi090909
+2. RK33DV
 3. Kwitsatz
