@@ -1,7 +1,5 @@
-tarball = "www"
-mac = true
-win = false
-linux = true
+mac = "mac"
+linux = "linux"
 dependencies = []
 major = "0"
 minor = "1"
