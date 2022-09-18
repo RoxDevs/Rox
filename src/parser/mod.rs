@@ -4,14 +4,12 @@ use toml::from_str;
 // This is until the CLI is implemented
 #[allow(dead_code)]
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Deserialize)]
-pub struct RawProject {
+struct RawProject {
     dependencies: Vec<String>,
     mac: Option<String>,
     win: Option<String>,
     linux: Option<String>,
-    major: String,
-    minor: String,
-    rev: String,
+    version: String,
 }
 
 // Until the CLI is built
@@ -26,6 +24,42 @@ impl RawProject {
     }
 }
 
+impl Into<Project> for RawProject {
+    fn into(self) -> Project {
+        let dependencies: Vec<Vec<String>> = self
+            .dependencies
+            .iter()
+            .map(|item| item.split('/').map(|string| string.to_string()).collect())
+            .collect();
+        let version: Vec<usize> = self
+            .version
+            .split('.')
+            .map(|int| int.parse::<usize>().expect("invalid SemVer"))
+            .collect();
+        assert_eq!(3, version.len(), "invalid SemVer");
+        Project {
+            dependencies,
+            mac: self.mac,
+            win: self.win,
+            linux: self.linux,
+            major: version[0],
+            minor: version[1],
+            rev: version[2],
+        }
+    }
+}
+
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Deserialize)]
+pub struct Project {
+    dependencies: Vec<Vec<String>>,
+    mac: Option<String>,
+    win: Option<String>,
+    linux: Option<String>,
+    major: usize,
+    minor: usize,
+    rev: usize,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -37,13 +71,30 @@ mod tests {
         assert_eq!(
             project,
             RawProject {
-                dependencies: vec![],
+                dependencies: vec!["xxx/yyy".to_string()],
                 mac: Some("mac".to_string()),
                 win: None,
                 linux: Some("linux".to_string()),
-                major: "0".to_string(),
-                minor: "1".to_string(),
-                rev: "0".to_string()
+                version: "0.1.0".to_string()
+            }
+        )
+    }
+
+    #[test]
+    fn project_tests() {
+        let toml = include_str!("../../tomls/basic.toml");
+        let raw = RawProject::create_from_str(toml).unwrap();
+        let project: Project = raw.into();
+        assert_eq!(
+            project,
+            Project {
+                dependencies: vec![vec!["xxx".to_string(), "yyy".to_string()]],
+                mac: Some("mac".to_string()),
+                win: None,
+                linux: Some("linux".to_string()),
+                major: 0,
+                minor: 1,
+                rev: 0
             }
         )
     }
