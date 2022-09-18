@@ -1,8 +1,4 @@
-tarball = "www"
-mac = true
-win = false
-linux = true
-dependencies = []
-major = "0"
-minor = "1"
-rev = "0"
+mac = "mac"
+linux = "linux"
+dependencies = ["xxx/yyy"]
+version = "0.1.0"
