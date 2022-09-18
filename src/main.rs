@@ -28,15 +28,14 @@ fn main() {
         Commands::Install { package } => {
             println!("Installing{:?}", package);
             let _repo = match Repository::clone(url, path) {
-               Ok(repo) => repo,
-               Err(e) => panic!("installation failed : {}", e),
+                Ok(repo) => repo,
+                Err(e) => panic!("installation failed : {}", e),
             };
         }
-        Commands::Remove { package } => {
+        Commands::Remove { package: _ } => {
             println!("Removing source code...");
-            fs::remove_dir_all("RoxPaks")
-            .expect("Error removing source code :(");
-         println!("source code removed successfully!");
+            fs::remove_dir_all("RoxPaks").expect("Error removing source code :(");
+            println!("source code removed successfully!");
+        }
     }
-
 }
