@@ -4,7 +4,10 @@ use toml::from_str;
 // This is until the CLI is implemented
 #[allow(dead_code)]
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Deserialize)]
+<<<<<<< HEAD
 struct RawProject {
+=======
+pub struct RawProject {
     dependencies: Vec<String>,
     mac: Option<String>,
     win: Option<String>,
