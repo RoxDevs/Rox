@@ -2,6 +2,15 @@ use clap::{Parser, Subcommand};
 use git2::Repository;
 use rand::distributions::{Alphanumeric, DistString};
 use std::fs;
+use rusqlite::{params, Connection, Result};
+//mod litespeed;
+
+struct PackageLT {
+    version: String,
+    name: String,
+    path: String,
+    repo_url: String,
+}
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -19,6 +28,24 @@ enum Commands {
     Remove { package: Option<String> },
 }
 
+fn add_Package() -> Result<()> {
+    let conn = Connection::open_in_memory()?;
+    conn.execute(
+        "INSERT INTO pkgs (version, name, path, repo_url) VALUES (?1,?2,?3,?4)",
+        (&"", &"", &"", &""),
+    )?;
+    unsafe{
+        static mut newpkg: PackageLT = PackageLT {
+            version: "1.0".to_string(),
+            name: "foo".to_string(),
+            path: "foo".to_string(),
+            repo_url: "foo".to_string()
+        };
+    }
+
+    Ok(())
+}
+
 fn main() {
     let cli = Cli::parse();
     let url = "https://github.com/RK33DV/unitytergen";
@@ -31,6 +58,7 @@ fn main() {
                Ok(repo) => repo,
                Err(e) => panic!("installation failed : {}", e),
             };
+
         }
         Commands::Remove { package } => {
             println!("Removing source code...");
