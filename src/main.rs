@@ -5,12 +5,6 @@ use std::fs;
 use rusqlite::{params, Connection, Result};
 //mod litespeed;
 
-struct PackageLT {
-    version: String,
-    name: String,
-    path: String,
-    repo_url: String,
-}
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -43,12 +37,6 @@ fn main() {
     let url = "https://github.com/RK33DV/unitytergen";
     let fldr = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
     let path = format!("RoxPaks/Packages/src/{}", fldr);
-    let mut newpkg = PackageLT {
-        version: "1.0".to_string(),
-        name: "foo".to_string(),
-        path: "foo".to_string(),
-        repo_url: "foo".to_string()
-    };
     match &cli.command {
         Commands::Install { package } => {
             println!("Installing{:?}", package);
@@ -65,4 +53,14 @@ fn main() {
          println!("source code removed successfully!");
     }
 }
+}
+
+fn install() -> Result<()> {
+    let conn = Connection::open_in_memory()?;
+    conn.execute(
+        "INSERT INTO pkgs (version, name, ) VALUES (?1, ?2)",
+        (&me.name, &me.data),
+    )?;
+
+    Ok(())
 }
