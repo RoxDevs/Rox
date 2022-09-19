@@ -34,14 +34,6 @@ fn add_Package() -> Result<()> {
         "INSERT INTO pkgs (version, name, path, repo_url) VALUES (?1,?2,?3,?4)",
         (&"", &"", &"", &""),
     )?;
-    unsafe{
-        static mut newpkg: PackageLT = PackageLT {
-            version: "1.0".to_string(),
-            name: "foo".to_string(),
-            path: "foo".to_string(),
-            repo_url: "foo".to_string()
-        };
-    }
 
     Ok(())
 }
@@ -51,6 +43,12 @@ fn main() {
     let url = "https://github.com/RK33DV/unitytergen";
     let fldr = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
     let path = format!("RoxPaks/Packages/src/{}", fldr);
+    let mut newpkg = PackageLT {
+        version: "1.0".to_string(),
+        name: "foo".to_string(),
+        path: "foo".to_string(),
+        repo_url: "foo".to_string()
+    };
     match &cli.command {
         Commands::Install { package } => {
             println!("Installing{:?}", package);
