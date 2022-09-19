@@ -4,15 +4,13 @@ use toml::from_str;
 // This is until the CLI is implemented
 #[allow(dead_code)]
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Deserialize)]
-<<<<<<< HEAD
-struct RawProject {
-=======
 pub struct RawProject {
     dependencies: Vec<String>,
     mac: Option<String>,
     win: Option<String>,
     linux: Option<String>,
     version: String,
+    git: Option<String>,
 }
 
 // Until the CLI is built
@@ -48,12 +46,13 @@ impl Into<Project> for RawProject {
             major: version[0],
             minor: version[1],
             rev: version[2],
+            git: self.git,
         }
     }
 }
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Deserialize)]
-pub struct Project {
+struct Project {
     dependencies: Vec<Vec<String>>,
     mac: Option<String>,
     win: Option<String>,
@@ -61,6 +60,7 @@ pub struct Project {
     major: usize,
     minor: usize,
     rev: usize,
+    git: Option<String>,
 }
 
 #[cfg(test)]
@@ -78,7 +78,8 @@ mod tests {
                 mac: Some("mac".to_string()),
                 win: None,
                 linux: Some("linux".to_string()),
-                version: "0.1.0".to_string()
+                version: "0.1.0".to_string(),
+                git: None
             }
         )
     }
@@ -97,7 +98,27 @@ mod tests {
                 linux: Some("linux".to_string()),
                 major: 0,
                 minor: 1,
-                rev: 0
+                rev: 0,
+                git: None
+            }
+        )
+    }
+
+    #[test]
+    fn source_tests() {
+        let toml = include_str!("../../tomls/source.toml");
+        let project: Project = RawProject::create_from_str(toml).unwrap().into();
+        assert_eq!(
+            project,
+            Project {
+                dependencies: vec![],
+                mac: None,
+                linux: None,
+                major: 0,
+                minor: 1,
+                rev: 0,
+                git: Some("xxx/yyy".to_string()),
+                win: None
             }
         )
     }

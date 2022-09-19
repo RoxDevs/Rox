@@ -3,6 +3,8 @@ use git2::Repository;
 use rand::distributions::{Alphanumeric, DistString};
 use std::fs;
 
+mod parser;
+
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
 #[clap(propagate_version = true)]
