@@ -4,29 +4,28 @@ use toml::from_str;
 // This is until the CLI is implemented
 #[allow(dead_code)]
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Deserialize)]
-pub struct RawProject {
+pub struct RawVer {
     dependencies: Vec<String>,
     mac: Option<String>,
     win: Option<String>,
     linux: Option<String>,
     version: String,
-    git: Option<String>,
 }
 
 // Until the CLI is built
 #[allow(dead_code)]
-impl RawProject {
+impl RawVer {
     pub fn create_from_file(name: &str) -> Result<Self, Box<dyn std::error::Error>> {
         let file = std::fs::read_to_string(name)?;
-        Ok(RawProject::create_from_str(file.as_str())?.clone())
+        Ok(RawVer::create_from_str(file.as_str())?.clone())
     }
-    fn create_from_str(contents: &str) -> Result<RawProject, Box<dyn std::error::Error>> {
-        Ok(from_str::<RawProject>(contents)?.clone())
+    fn create_from_str(contents: &str) -> Result<RawVer, Box<dyn std::error::Error>> {
+        Ok(from_str::<RawVer>(contents)?.clone())
     }
 }
 
-impl Into<Project> for RawProject {
-    fn into(self) -> Project {
+impl Into<Ver> for RawVer {
+    fn into(self) -> Ver {
         let dependencies: Vec<Vec<String>> = self
             .dependencies
             .iter()
@@ -38,7 +37,7 @@ impl Into<Project> for RawProject {
             .map(|int| int.parse::<usize>().expect("invalid SemVer"))
             .collect();
         assert_eq!(3, version.len(), "invalid SemVer");
-        Project {
+        Ver {
             dependencies,
             mac: self.mac,
             win: self.win,
@@ -46,13 +45,12 @@ impl Into<Project> for RawProject {
             major: version[0],
             minor: version[1],
             rev: version[2],
-            git: self.git,
         }
     }
 }
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Deserialize)]
-struct Project {
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
+struct Ver {
     dependencies: Vec<Vec<String>>,
     mac: Option<String>,
     win: Option<String>,
@@ -60,7 +58,48 @@ struct Project {
     major: usize,
     minor: usize,
     rev: usize,
+}
+
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Deserialize)]
+pub struct RawProject {
     git: Option<String>,
+    name: String,
+    #[serde(rename(serialize = "versions", deserialize = "version"))]
+    versions: Vec<RawVer>,
+}
+
+// Until the CLI is built
+#[allow(dead_code)]
+impl RawProject {
+    pub fn create_from_file(name: &str) -> Result<Self, Box<dyn std::error::Error>> {
+        let file = std::fs::read_to_string(name)?;
+        Ok(RawProject::create_from_str(file.as_str())?.clone())
+    }
+    fn create_from_str(contents: &str) -> Result<Self, Box<dyn std::error::Error>> {
+        Ok(from_str::<RawProject>(contents)?.clone())
+    }
+}
+
+impl Into<Project> for RawProject {
+    fn into(self) -> Project {
+        Project {
+            git: self.git,
+            name: self.name,
+            versions: self
+                .versions
+                .iter()
+                .cloned()
+                .map(|ver| ver.into())
+                .collect(),
+        }
+    }
+}
+
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
+pub struct Project {
+    git: Option<String>,
+    name: String,
+    versions: Vec<Ver>,
 }
 
 #[cfg(test)]
@@ -70,28 +109,27 @@ mod tests {
     #[test]
     fn from_str_tests() {
         let toml = include_str!("../../tomls/basic.toml");
-        let project = RawProject::create_from_str(toml).unwrap();
+        let project = RawVer::create_from_str(toml).unwrap();
         assert_eq!(
             project,
-            RawProject {
+            RawVer {
                 dependencies: vec!["xxx/yyy".to_string()],
                 mac: Some("mac".to_string()),
                 win: None,
                 linux: Some("linux".to_string()),
                 version: "0.1.0".to_string(),
-                git: None
             }
         )
     }
 
     #[test]
-    fn project_tests() {
+    fn version_tests() {
         let toml = include_str!("../../tomls/basic.toml");
-        let raw = RawProject::create_from_str(toml).unwrap();
-        let project: Project = raw.into();
+        let raw = RawVer::create_from_str(toml).unwrap();
+        let project: Ver = raw.into();
         assert_eq!(
             project,
-            Project {
+            Ver {
                 dependencies: vec![vec!["xxx".to_string(), "yyy".to_string()]],
                 mac: Some("mac".to_string()),
                 win: None,
@@ -99,27 +137,41 @@ mod tests {
                 major: 0,
                 minor: 1,
                 rev: 0,
-                git: None
             }
         )
     }
 
     #[test]
-    fn source_tests() {
-        let toml = include_str!("../../tomls/source.toml");
-        let project: Project = RawProject::create_from_str(toml).unwrap().into();
+    fn project_tests() {
+        let toml = include_str!("../../tomls/simple-project.toml");
+        let raw = RawProject::create_from_str(toml).unwrap();
+        let project: Project = raw.into();
         assert_eq!(
             project,
             Project {
-                dependencies: vec![],
-                mac: None,
-                linux: None,
-                major: 0,
-                minor: 1,
-                rev: 0,
-                git: Some("xxx/yyy".to_string()),
-                win: None
+                versions: vec![
+                    Ver {
+                        dependencies: vec![vec!["xxx".to_string(), "yyy".to_string()]],
+                        mac: Some("mac".to_string()),
+                        win: None,
+                        linux: Some("linux".to_string()),
+                        major: 0,
+                        minor: 1,
+                        rev: 0,
+                    },
+                    Ver {
+                        dependencies: vec![vec!["yyy".to_string(), "yyy".to_string()]],
+                        mac: Some("mac".to_string()),
+                        win: None,
+                        linux: Some("linux".to_string()),
+                        major: 0,
+                        minor: 1,
+                        rev: 1,
+                    }
+                ],
+                git: None,
+                name: "Rox".to_string()
             }
-        )
+        );
     }
 }

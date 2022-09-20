@@ -1,0 +1,13 @@
+name = "Rox"
+
+[[version]]
+mac = "mac"
+linux = "linux"
+dependencies = ["xxx/yyy"]
+version = "0.1.0"
+
+[[version]]
+mac = "mac"
+linux = "linux"
+dependencies = ["yyy/yyy"]
+version = "0.1.1"
