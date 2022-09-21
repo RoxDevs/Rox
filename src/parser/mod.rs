@@ -66,6 +66,7 @@ pub struct RawProject {
     name: String,
     #[serde(rename(serialize = "versions", deserialize = "version"))]
     versions: Vec<RawVer>,
+    authors: Vec<String>,
 }
 
 // Until the CLI is built
@@ -91,6 +92,7 @@ impl Into<Project> for RawProject {
                 .cloned()
                 .map(|ver| ver.into())
                 .collect(),
+            authors: self.authors,
         }
     }
 }
@@ -100,6 +102,7 @@ pub struct Project {
     git: Option<String>,
     name: String,
     versions: Vec<Ver>,
+    authors: Vec<String>,
 }
 
 #[cfg(test)]
@@ -170,7 +173,8 @@ mod tests {
                     }
                 ],
                 git: None,
-                name: "Rox".to_string()
+                name: "Rox".to_string(),
+                authors: vec!["muppi090909".to_string()]
             }
         );
     }
