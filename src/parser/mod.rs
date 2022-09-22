@@ -51,13 +51,8 @@ impl Into<Ver> for RawVer {
     }
 }
 
-<<<<<<< HEAD
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
 struct Ver {
-=======
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Deserialize)]
-struct Project {
->>>>>>> 174e939 (implemented source parsing)
     dependencies: Vec<Vec<String>>,
     mac: Option<String>,
     win: Option<String>,
@@ -129,10 +124,6 @@ mod tests {
                 win: None,
                 linux: Some("linux".to_string()),
                 version: "0.1.0".to_string(),
-<<<<<<< HEAD
-=======
-                git: None
->>>>>>> 174e939 (implemented source parsing)
             }
         )
     }
@@ -152,29 +143,6 @@ mod tests {
                 major: 0,
                 minor: 1,
                 rev: 0,
-<<<<<<< HEAD
-=======
-                git: None
-            }
-        )
-    }
-
-    #[test]
-    fn source_tests() {
-        let toml = include_str!("../../tomls/source.toml");
-        let project: Project = RawProject::create_from_str(toml).unwrap().into();
-        assert_eq!(
-            project,
-            Project {
-                dependencies: vec![],
-                mac: None,
-                linux: None,
-                major: 0,
-                minor: 1,
-                rev: 0,
-                git: Some("xxx/yyy".to_string()),
-                win: None
->>>>>>> 174e939 (implemented source parsing)
             }
         )
     }
