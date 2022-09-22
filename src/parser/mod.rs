@@ -10,7 +10,6 @@ pub struct RawVer {
     win: Option<String>,
     linux: Option<String>,
     version: String,
-    git: Option<String>,
 }
 
 // Until the CLI is built
