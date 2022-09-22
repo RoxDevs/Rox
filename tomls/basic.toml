@@ -1,6 +1,4 @@
 mac = "mac"
 linux = "linux"
-dependencies = []
-major = "0"
-minor = "1"
-rev = "0"
+dependencies = ["xxx/yyy"]
+version = "0.1.0"
