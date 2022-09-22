@@ -1,9 +1,10 @@
+#[allow(unused_variables)]
+
 use clap::{Parser, Subcommand};
 use git2::Repository;
 use rand::distributions::{Alphanumeric, DistString};
 use std::fs;
 use rusqlite::{params, Connection, Result};
-//mod litespeed;
 
 
 #[derive(Parser)]
@@ -22,24 +23,29 @@ enum Commands {
     Remove { package: Option<String> },
 }
 
-fn add_Package() -> Result<()> {
-    let conn = Connection::open_in_memory()?;
-    conn.execute(
-        "INSERT INTO pkgs (version, name, path, repo_url) VALUES (?1,?2,?3,?4)",
-        (&"", &"", &"", &""),
-    )?;
 
-    Ok(())
-}
 
 fn main() {
     let cli = Cli::parse();
     let url = "https://github.com/RK33DV/unitytergen";
     let fldr = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
     let path = format!("RoxPaks/Packages/src/{}", fldr);
+    let ver = "2".to_string();
     match &cli.command {
         Commands::Install { package } => {
             println!("Installing{:?}", package);
+            let mut a = || -> Result<()> {
+                let conn = Connection::open("packageLDB")?;
+                conn.execute(
+                    "INSERT INTO pkgs (version, name, path, repo_url) VALUES (?1,?2,?3,?4)",
+                    (&ver, &package, &fldr, &url),
+                )?;
+            
+                Ok(())
+            };
+            a();
+
+
             let _repo = match Repository::clone(url, path) {
                Ok(repo) => repo,
                Err(e) => panic!("installation failed : {}", e),
@@ -55,12 +61,3 @@ fn main() {
 }
 }
 
-fn install() -> Result<()> {
-    let conn = Connection::open_in_memory()?;
-    conn.execute(
-        "INSERT INTO pkgs (version, name, ) VALUES (?1, ?2)",
-        (&me.name, &me.data),
-    )?;
-
-    Ok(())
-}
