@@ -35,10 +35,10 @@ fn main() {
         Commands::Install { package } => {
             println!("Installing{:?}", package);
             let mut a = || -> Result<()> {
-                let conn = Connection::open("packageLDB")?;
+                let conn = Connection::open("/src/packageLDB.db")?;
                 conn.execute(
                     "INSERT INTO pkgs (version, name, path, repo_url) VALUES (?1,?2,?3,?4)",
-                    (&ver, &package, &fldr, &url),
+                    (&ver, &package, &fldr, &url.to_string()),
                 )?;
             
                 Ok(())
@@ -60,4 +60,3 @@ fn main() {
     }
 }
 }
-
