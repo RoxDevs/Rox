@@ -1,15 +1,15 @@
+use std::collections::HashMap;
+
 use serde::Deserialize;
 use toml::from_str;
 
 // This is until the CLI is implemented
 #[allow(dead_code)]
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Deserialize)]
 pub struct RawVer {
     dependencies: Vec<String>,
-    mac: Option<String>,
-    win: Option<String>,
-    linux: Option<String>,
     version: String,
+    tarballs: HashMap<String, String>,
 }
 
 // Until the CLI is built
@@ -39,30 +39,24 @@ impl Into<Ver> for RawVer {
         assert_eq!(3, version.len(), "invalid SemVer");
         Ver {
             dependencies,
-            mac: self.mac,
-            win: self.win,
-            linux: self.linux,
             major: version[0],
             minor: version[1],
             rev: version[2],
-            git: self.git,
+            tarballs: self.tarballs,
         }
     }
 }
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 struct Ver {
     dependencies: Vec<Vec<String>>,
-    mac: Option<String>,
-    win: Option<String>,
-    linux: Option<String>,
+    tarballs: HashMap<String, String>,
     major: usize,
     minor: usize,
     rev: usize,
-    git: Option<String>,
 }
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Deserialize)]
 pub struct RawProject {
     git: Option<String>,
     name: String,
@@ -99,7 +93,7 @@ impl Into<Project> for RawProject {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Project {
     git: Option<String>,
     name: String,
@@ -119,10 +113,11 @@ mod tests {
             project,
             RawVer {
                 dependencies: vec!["xxx/yyy".to_string()],
-                mac: Some("mac".to_string()),
-                win: None,
-                linux: Some("linux".to_string()),
                 version: "0.1.0".to_string(),
+                tarballs: HashMap::from([(
+                    "x86_64-unknown-linux-gnu".to_string(),
+                    "linux".to_string()
+                )])
             }
         )
     }
@@ -136,30 +131,13 @@ mod tests {
             project,
             Ver {
                 dependencies: vec![vec!["xxx".to_string(), "yyy".to_string()]],
-                mac: Some("mac".to_string()),
-                win: None,
-                linux: Some("linux".to_string()),
                 major: 0,
                 minor: 1,
                 rev: 0,
-            }
-        )
-    }
-
-    #[test]
-    fn source_tests() {
-        let toml = include_str!("../../tomls/source.toml");
-        let project: Ver = RawVer::create_from_str(toml).unwrap().into();
-        assert_eq!(
-            project,
-            Ver {
-                dependencies: vec![],
-                mac: None,
-                linux: None,
-                major: 0,
-                minor: 1,
-                rev: 0,
-                win: None
+                tarballs: HashMap::from([(
+                    "x86_64-unknown-linux-gnu".to_string(),
+                    "linux".to_string()
+                )])
             }
         )
     }
@@ -175,26 +153,28 @@ mod tests {
                 versions: vec![
                     Ver {
                         dependencies: vec![vec!["xxx".to_string(), "yyy".to_string()]],
-                        mac: Some("mac".to_string()),
-                        win: None,
-                        linux: Some("linux".to_string()),
                         major: 0,
                         minor: 1,
                         rev: 0,
+                        tarballs: HashMap::from([
+                            ("x86_64-unknown-linux-gnu".to_string(), "linux".to_string()),
+                            ("x86_64-pc-windows-gnu".to_string(), "windows".to_string())
+                        ])
                     },
                     Ver {
-                        dependencies: vec![vec!["yyy".to_string(), "yyy".to_string()]],
-                        mac: Some("mac".to_string()),
-                        win: None,
-                        linux: Some("linux".to_string()),
+                        dependencies: vec![vec!["xxx".to_string(), "yyy".to_string()]],
                         major: 0,
                         minor: 1,
                         rev: 1,
+                        tarballs: HashMap::from([(
+                            "x86_64-unknown-linux-gnu".to_string(),
+                            "linux".to_string()
+                        )])
                     }
                 ],
                 git: None,
-                name: "Rox".to_string(),
-                authors: vec!["muppi090909".to_string()]
+                authors: vec!["muppi090909".to_string()],
+                name: "Rox".to_string()
             }
         );
     }
