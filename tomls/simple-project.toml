@@ -2,13 +2,14 @@ name = "Rox"
 authors = ["muppi090909"]
 
 [[version]]
-mac = "mac"
-linux = "linux"
 dependencies = ["xxx/yyy"]
 version = "0.1.0"
+[version.tarballs]
+x86_64-unknown-linux-gnu = "linux"
+x86_64-pc-windows-gnu = "windows"
 
 [[version]]
-mac = "mac"
-linux = "linux"
-dependencies = ["yyy/yyy"]
+dependencies = ["xxx/yyy"]
 version = "0.1.1"
+[version.tarballs]
+x86_64-unknown-linux-gnu = "linux"
