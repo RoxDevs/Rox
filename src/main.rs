@@ -23,6 +23,8 @@ enum Commands {
     Install { package: Option<String> },
     /// remove the source code of the packages
     Remove { package: Option<String> },
+    /// init a new public repo
+    Init { toml: Option<String>},
 }
 
 
@@ -55,7 +57,7 @@ fn main() {
 
         }
         Commands::Remove { package } => {
-            let mut search-and-destroy = || -> Result<()> {
+            let mut search = || -> Result<()> {
                 let conn = Connection::open("src/packageLDB.db")?;
                 conn.execute(
                     "DELETE FROM pkgs 
@@ -63,15 +65,18 @@ fn main() {
                     &package,
                 )?;
             
-                search-and-destroy(())
+                Ok(())
             };
-            b();
+            search();
 
             println!("Removing source code...");
 
             fs::remove_dir_all("src/RoxPaks")
             .expect("Error removing source code :(");
          println!("source code removed successfully!");
+    }
+    Commands::Init { toml
+    //this is supposed to link to a toml file for the repo
     }
 }
 } 
