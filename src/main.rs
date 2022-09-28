@@ -45,7 +45,10 @@ fn main() {
     let mut conf_path = current_exe().unwrap();
     conf_path.pop();
     conf_path.push("config.toml");
-    let conf: Config = RawConfig::from_str(&read_to_string(conf_path).unwrap()).unwrap().into();
+    let conf: Config = RawConfig::from_str(&read_to_string(conf_path).unwrap())
+        .unwrap()
+        .into();
+>>>>>>> 36a0abd (getting an error when i try to add the delete function. dont know why)
     let cli = Cli::parse();
     let fldr = "";
     let pkg_name = "";
@@ -98,4 +101,3 @@ fn main() {
     }
 
 }
-
