@@ -53,7 +53,7 @@ fn main() {
 
         }
         Commands::Remove { package } => {
-            let mut b = || -> Result<()> {
+            let mut search-and-destroy = || -> Result<()> {
                 let conn = Connection::open("src/packageLDB.db")?;
                 conn.execute(
                     "DELETE FROM pkgs 
@@ -61,7 +61,7 @@ fn main() {
                     &package,
                 )?;
             
-                Ok(())
+                search-and-destroy(())
             };
             b();
 
