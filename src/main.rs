@@ -53,6 +53,18 @@ fn main() {
 
         }
         Commands::Remove { package } => {
+            let mut b = || -> Result<()> {
+                let conn = Connection::open("src/packageLDB.db")?;
+                conn.execute(
+                    "DELETE FROM pkgs 
+                    WHERE name = ?1;",
+                    &package,
+                )?;
+            
+                Ok(())
+            };
+            b();
+
             println!("Removing source code...");
             fs::remove_dir_all("src/RoxPaks")
             .expect("Error removing source code :(");
