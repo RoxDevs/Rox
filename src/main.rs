@@ -7,6 +7,8 @@ use std::fs;
 use rusqlite::{params, Connection, Result};
 
 
+mod parser;
+
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
 #[clap(propagate_version = true)]
@@ -47,8 +49,8 @@ fn main() {
 
 
             let _repo = match Repository::clone(url, path) {
-               Ok(repo) => repo,
-               Err(e) => panic!("installation failed : {}", e),
+                Ok(repo) => repo,
+                Err(e) => panic!("installation failed : {}", e),
             };
 
         }
@@ -66,9 +68,10 @@ fn main() {
             b();
 
             println!("Removing source code...");
+
             fs::remove_dir_all("src/RoxPaks")
             .expect("Error removing source code :(");
          println!("source code removed successfully!");
     }
 }
-}
+} 
