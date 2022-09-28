@@ -77,6 +77,6 @@ fn main() {
     }
     Commands::Init { toml
     //this is supposed to link to a toml file for the repo
-    }
+    }=>
 }
 } 
