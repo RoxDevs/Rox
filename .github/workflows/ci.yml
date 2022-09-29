@@ -21,7 +21,7 @@ jobs:
     - name: Run tests
       run: cargo test --verbose
     - name: Assert clean
-      run:
+      run: |
         - if [ -d "target" ]; then
         - exit 1
         - fi
