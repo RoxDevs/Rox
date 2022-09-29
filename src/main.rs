@@ -23,8 +23,6 @@ enum Commands {
     Install { package: Option<String> },
     /// remove the source code of the packages
     Remove { package: Option<String> },
-    /// init a new public repo
-    Init { toml: Option<String>},
 }
 
 
@@ -62,7 +60,7 @@ fn main() {
                 conn.execute(
                     "DELETE FROM pkgs 
                     WHERE name = ?1;",
-                    &package,
+                    (&package,)
                 )?;
             
                 Ok(())
@@ -75,10 +73,5 @@ fn main() {
             .expect("Error removing source code :(");
          println!("source code removed successfully!");
     }
-    Commands::Init { toml}  => {
-    //this is supposed to link to a toml file for the repo
-    let pathtorepo = toml;
-
-}
 }
 } 
