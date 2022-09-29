@@ -58,7 +58,7 @@ fn main() {
             let mut search = || -> Result<()> {
                 let conn = Connection::open("src/packageLDB.db")?;
                 conn.execute(
-                    "DELETE FROM pkgs 
+                    "DELETE FROM pkgs
                     WHERE name = ?1;",
                     (&package,)
                 )?;
@@ -69,7 +69,7 @@ fn main() {
 
             println!("Removing source code...");
 
-            fs::remove_dir_all("src/RoxPaks")
+            fs::remove_dir_all("RoxPaks")
             .expect("Error removing source code :(");
          println!("source code removed successfully!");
     }
