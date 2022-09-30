@@ -48,12 +48,12 @@ impl Into<Ver> for RawVer {
 }
 
 #[derive(Clone, PartialEq, Eq, Debug)]
-struct Ver {
-    dependencies: Vec<Vec<String>>,
-    tarballs: HashMap<String, String>,
-    major: usize,
-    minor: usize,
-    rev: usize,
+pub struct Ver {
+    pub dependencies: Vec<Vec<String>>,
+    pub tarballs: HashMap<String, String>,
+    pub major: usize,
+    pub minor: usize,
+    pub rev: usize,
 }
 
 #[derive(Clone, PartialEq, Eq, Debug, Deserialize)]
@@ -95,10 +95,10 @@ impl Into<Project> for RawProject {
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Project {
-    git: Option<String>,
-    name: String,
-    versions: Vec<Ver>,
-    authors: Vec<String>,
+    pub git: Option<String>,
+    pub name: String,
+    pub versions: Vec<Ver>,
+    pub authors: Vec<String>,
 }
 
 #[cfg(test)]
