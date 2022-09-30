@@ -6,7 +6,7 @@ use rand::distributions::{Alphanumeric, DistString};
 use std::fs;
 use rusqlite::{params, Connection, Result};
 
-
+mod config;
 mod parser;
 
 #[derive(Parser)]
@@ -42,7 +42,7 @@ fn main() {
                     "INSERT INTO pkgs (version, name, path, repo_url) VALUES (?1,?2,?3,?4)",
                     (&ver, &package, &fldr, &url.to_string()),
                 )?;
-            
+
                 Ok(())
             };
             a();
@@ -62,4 +62,4 @@ fn main() {
          println!("source code removed successfully!");
     }
 }
-} 
+}
