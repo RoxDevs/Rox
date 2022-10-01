@@ -73,20 +73,12 @@ pub fn install_db(package: String, pkg_name: String, path: String, ver: String){
     println!("PATH: {}",path);
     println!("VERSION: {}", ver);
 
-    // let new_package = pkg {
-    //     // version: ver, 
-    //     // name: pkg_name,
-    //     // path: path,
-    //     repo_url: package.to_string(),
-    // };
-
     let a = || -> Result<()> {
         let conn = Connection::open("/home/garuda/dev/Rox/src/packageLDB.db")?;
         conn.execute(
             "INSERT INTO pkgs (version, name, path, repo_url) VALUES (?1,?2,?3,?4)",
             (/*&new_package.version, &new_package.name, &new_package.path, &new_package.repo_url*/ ver, pkg_name, path, package.to_string()),
         )?;
-        //conn.execute("INSERT INTO pkgs (version, name, path, repo_url) VALUES ('1', '2', '3', '4')", NO_PARAMS)?;
     
         Ok(())
     };

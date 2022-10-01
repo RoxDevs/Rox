@@ -1,35 +1,14 @@
-// pub fn install(package: String, pkg_name: String, path: String, ver: String){
-// // package, url, path
+use rusqlite::{Connection, Result};
+pub fn add(package: String, pkg_name: String, path: String, ver: String){
+    let a = || -> Result<()> {
+        let conn = Connection::open("/home/garuda/dev/Rox/src/packageLDB.db")?;
+        conn.execute(
+            "INSERT INTO pkgs (version, name, path, repo_url) VALUES (?1,?2,?3,?4)",
+            (/*&new_package.version, &new_package.name, &new_package.path, &new_package.repo_url*/ ver, pkg_name, path, package.to_string()),
+        )?;
+    
+        Ok(())
+    };
 
-
-//         let mut url = "";
-//         println!("Installing {:?}", package);
-//         if package == ""{
-//                todo!()
-//         }
-
-//         if package.len() > 1{
-//             install(package.to_string(), pkg_name[4].to_string(), path, ver)
-//         }
-//         else if package.len() < 1{
-//             install(package.to_string(), pkg_name[4].to_string(), path, ver) // url in this case is link to rox official repo                
-//         }
-
-//         let _repo = match Repository::clone(&package, &path) {
-//             Ok(repo) => repo,
-//             Err(e) => panic!("installation failed : {}", e),
-//         };
-
-//         let a = || -> Result<()> {
-//             let conn = Connection::open("src/packageLDB.db")?;
-//             conn.execute(
-//                 "INSERT INTO pkgs (version, name, path, repo_url) VALUES (?1,?2,?3,?4)",
-//                 (&ver, &pkg_name, &path, &url),
-//             )?;
-        
-//             Ok(())
-//         };
-
-//         a();
-
-//     }
+    a();
+}
