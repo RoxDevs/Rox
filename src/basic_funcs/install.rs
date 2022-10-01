@@ -50,7 +50,7 @@ pub fn install(pkg_name: String, path: String){
                 Err(e) => panic!("Installation Failed: {}", e),
             };
             println!("{}", format!("Finished Installation of package {}\n", pkg_name).green().bold());
-            println!("{}", "Enjoy your Package ❤️ - Rox\n".red());            
+            println!("{}", "Enjoy your Package ❤️ ~ Rox\n".red());            
             Ok(())
         };
         a();
