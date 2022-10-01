@@ -9,8 +9,8 @@ use colored::Colorize;
 
 #[derive(Debug)]
 #[derive(Clone)]
-struct pkg {
-    version: String, 
+struct Pkg {
+    version: String,
     name: String,
     path: String,
     repo_url: String,
@@ -18,7 +18,7 @@ struct pkg {
 
 pub fn install(pkg_name: String, path: String){
 // package, url, path
-        
+
         let url = "";
         println!("{}", format!("Installing {}\n", pkg_name).green().bold());
         let mut rep_url = "".to_string();
@@ -28,8 +28,8 @@ pub fn install(pkg_name: String, path: String){
             let statement = format!("SELECT * FROM pkgs WHERE name='{}'", pkg_name);
             let mut stmt = conn.prepare(&statement.as_str()).unwrap();
             let pkg_iter = stmt.query_map(/*&[(pkg_name.as_str(), rep_url.as_str())]*/[], |row|{
-                Ok(pkg {
-                    version: row.get(0)?, 
+                Ok(Pkg {
+                    version: row.get(0)?,
                     name: row.get(1)?,
                     path: row.get(2)?,
                     repo_url: row.get(3)?,
@@ -41,7 +41,7 @@ pub fn install(pkg_name: String, path: String){
             for r in pkg_iter{
                 result.push(r);
             }
-            let result = result.iter().map(|a|{a.as_ref().unwrap().clone()}).collect::<Vec<pkg>>();
+            let result = result.iter().map(|a|{a.as_ref().unwrap().clone()}).collect::<Vec<Pkg>>();
 
             println!("Fetched data from DB\n");
             println!("{}", "Installing...\n".yellow());
@@ -50,7 +50,7 @@ pub fn install(pkg_name: String, path: String){
                 Err(e) => panic!("Installation Failed: {}", e),
             };
             println!("{}", format!("Finished Installation of package {}\n", pkg_name).green().bold());
-            println!("{}", "Enjoy your Package ❤️ ~ Rox\n".red());            
+            println!("{}", "Enjoy your Package ❤️ ~ Rox\n".red());
             Ok(())
         };
         a();
@@ -76,10 +76,10 @@ pub fn install_db(package: String, pkg_name: String, path: String, ver: String){
     let a = || -> Result<()> {
         let conn = Connection::open("/home/garuda/dev/Rox/src/packageLDB.db")?;
         conn.execute(
-            "INSERT INTO pkgs (version, name, path, repo_url) VALUES (?1,?2,?3,?4)",
+            "INSERT INTO Pkgs (version, name, path, repo_url) VALUES (?1,?2,?3,?4)",
             (/*&new_package.version, &new_package.name, &new_package.path, &new_package.repo_url*/ ver, pkg_name, path, package.to_string()),
         )?;
-    
+
         Ok(())
     };
 
