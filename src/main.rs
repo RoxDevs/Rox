@@ -93,7 +93,7 @@ fn main() {
         // Add command
         Commands::Add { package } => {
             let pkg_name = parse_name(package);
-                        // Validation and Appropriation
+            // Validation and Appropriation
             // Package      
             if pkg_name.len() > 1{
                 let fldr = pkg_name[4].to_string();
