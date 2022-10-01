@@ -1,10 +1,4 @@
 use std::env::current_exe;
-use std::fmt::format;
-use std::fs::read;
-use std::fs;
-
-use basic_funcs::add;
-#[allow(unused_variables)]
 use clap::{Parser, Subcommand};
 use config::Config;
 mod config;
@@ -16,7 +10,6 @@ use basic_funcs::install::install_db;
 use basic_funcs::add::add;
 use config::RawConfig;
 
-use colored::Colorize;
 
 mod parser;
 
@@ -49,6 +42,10 @@ fn parse_name(url: &str) -> Vec<&str>{
 }
 
 fn main() {
+    let mut conf_path = current_exe().unwrap();
+    conf_path.pop();
+    conf_path.push("config.toml");
+    let conf: Config = RawConfig::from_str(&read_to_string(conf_path).unwrap()).unwrap().into();
     let cli = Cli::parse();
     let fldr = "";
     let pkg_name = "";
@@ -101,3 +98,4 @@ fn main() {
     }
 
 }
+

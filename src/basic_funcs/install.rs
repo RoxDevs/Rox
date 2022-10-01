@@ -2,9 +2,7 @@ use std::fmt::format;
 
 use git2::Repository;
 // use rusqlite::{Connection};
-use rusqlite::{Connection, Result, ffi::SQLITE_NULL};
-// use sql_query_builder as sql;
-
+use rusqlite::{Connection, Result};
 use colored::Colorize;
 
 #[derive(Debug)]
@@ -19,9 +17,7 @@ struct Pkg {
 pub fn install(pkg_name: String, path: String){
 // package, url, path
 
-        let url = "";
         println!("{}", format!("Installing {}\n", pkg_name).green().bold());
-        let mut rep_url = "".to_string();
 
         let a = || -> Result<()> {
             let conn = Connection::open("/home/garuda/dev/Rox/src/packageLDB.db").unwrap();
@@ -50,7 +46,7 @@ pub fn install(pkg_name: String, path: String){
                 Err(e) => panic!("Installation Failed: {}", e),
             };
             println!("{}", format!("Finished Installation of package {}\n", pkg_name).green().bold());
-            println!("{}", "Enjoy your Package ❤️ ~ Rox\n".red());
+            println!("{}", "Enjoy your Package ❤️ - Rox\n".red());
             Ok(())
         };
         a();
