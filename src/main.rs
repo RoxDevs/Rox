@@ -22,16 +22,16 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    // install a package
+    /// install a package
     Install {
         package: String,
         ver: Option<String>,
     },
-    // remove the source code of the packages
+    /// remove the source code of the packages
     Remove {
         package: String,
     },
-    // Add new repo to db
+    /// Add new repo to db
     Add {
         package: String,
         ver: Option<String>,
@@ -39,6 +39,43 @@ enum Commands {
     Repo {
         #[clap[subcommand]]
         cmd: RepoCommand
+}
+
+fn main() {
+    let cli = Cli::parse();
+    let url = "https://github.com/RK33DV/unitytergen";
+    let fldr = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
+    let path = format!("RoxPaks/Packages/src/{}", fldr);
+    let ver = "2".to_string();
+    match &cli.command {
+        Commands::Install { package } => {
+            println!("Installing{:?}", package);
+            let a = || -> Result<()> {
+                let conn = Connection::open("src/packageLDB.db")?;
+                conn.execute(
+                    "INSERT INTO pkgs (version, name, path, repo_url) VALUES (?1,?2,?3,?4)",
+                    (&ver, &package, &fldr, &url.to_string()),
+                )?;
+
+                Ok(())
+            };
+
+            a().expect("Impossible state, skipping...");
+
+            let _repo = match Repository::clone(url, path) {
+                Ok(repo) => repo,
+                Err(e) => panic!("Installation failed : {}", e),
+            };
+
+        }
+        Commands::Remove { package } => {
+            println!("Removing package...");
+            let path = format!("RoxPaks/Packages/src/{}", package.as_ref().unwrap());
+            match fs::remove_dir_all(path) {
+                Ok(_) => println!("Package removed successfully!"),
+                Err(_) => println!("Package not found in local repository")
+            }
+>>>>>>> 692dd39 (main.rs: remove package)
     }
 }
 
