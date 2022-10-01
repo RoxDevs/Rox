@@ -2,12 +2,14 @@ use std::fmt::format;
 
 use git2::Repository;
 // use rusqlite::{Connection};
-use rusqlite::{Connection, Result};
+use rusqlite::{Connection, Result, ffi::SQLITE_NULL};
 use sql_query_builder as sql;
 
+use colored::Colorize;
+
 #[derive(Debug)]
+#[derive(Clone)]
 struct pkg {
-    id: String,
     version: String, 
     name: String,
     path: String,
@@ -18,31 +20,37 @@ pub fn install(pkg_name: String, path: String){
 // package, url, path
         
         let url = "";
-        println!("Installing {:?}", pkg_name);
+        println!("{}", format!("Installing {}\n", pkg_name).green().bold());
         let mut rep_url = "".to_string();
 
         let a = || -> Result<()> {
-            println!("Running A");
-            println!("Running A");
-            let conn = Connection::open("src/packageLDB.db").unwrap();
-            dbg!(&conn);
-            println!("Running B");
-            let mut stmt = conn.prepare(format!("SELECT * FROM pkgs WHERE name=:'{}'", pkg_name).as_str())?;
-            println!("Running C");
-            let pkg_iter = stmt.query_map(&[(pkg_name.as_str(), rep_url.as_str())], |row|{
+            let conn = Connection::open("/home/garuda/dev/Rox/src/packageLDB.db").unwrap();
+            let statement = format!("SELECT * FROM pkgs WHERE name='{}'", pkg_name);
+            let mut stmt = conn.prepare(&statement.as_str()).unwrap();
+            let pkg_iter = stmt.query_map(/*&[(pkg_name.as_str(), rep_url.as_str())]*/[], |row|{
                 Ok(pkg {
-                    id: row.get(1)?,
-                    version: row.get(2)?, 
-                    name: row.get(3)?,
-                    path: row.get(4)?,
-                    repo_url: row.get(5)?,
+                    version: row.get(0)?, 
+                    name: row.get(1)?,
+                    path: row.get(2)?,
+                    repo_url: row.get(3)?,
                 })
-            })?;
-            println!("Running D");
-            println!("Hello World");
+            }).unwrap();
+
+            let mut result = Vec::new();
+
             for r in pkg_iter{
-                println!("R = {:?}", r);
+                result.push(r);
             }
+            let result = result.iter().map(|a|{a.as_ref().unwrap().clone()}).collect::<Vec<pkg>>();
+
+            println!("Fetched data from DB\n");
+            println!("{}", "Installing...\n".yellow());
+            let _repo = match Repository::clone(&result.get(0).unwrap().repo_url, &path) {
+                Ok(repo) => repo,
+                Err(e) => panic!("Installation Failed: {}", e),
+            };
+            println!("{}", format!("Finished Installation of package {}\n", pkg_name).green().bold());
+            println!("{}", "Enjoy your Package ❤️ - Rox\n".red());            
             Ok(())
         };
         a();

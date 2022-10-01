@@ -2,7 +2,7 @@ use serde::Deserialize;
 use std::{path::PathBuf, str::FromStr};
 
 #[derive(Debug, Deserialize, PartialEq)]
-struct RawConfig {
+pub struct RawConfig {
     path: String,
     target: String,
 }
@@ -14,7 +14,7 @@ impl RawConfig {
 }
 
 #[derive(Debug, PartialEq)]
-struct Config {
+pub struct Config {
     path: PathBuf,
     target: String,
 }
