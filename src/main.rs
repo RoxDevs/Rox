@@ -42,10 +42,10 @@ enum Commands {
     Add { package: String },
 }
 
-// Convert package to VEC
+/// Convert package to [`Vec`]
 fn parse_name(url: &str) -> Vec<&str>{
     let url = url.split("/");
-    let mut parsed_arr = Vec::new(); 
+    let mut parsed_arr = Vec::new();
     for s in url {
         parsed_arr.push(s);
     }
@@ -58,15 +58,14 @@ fn main() {
     conf_path.pop();
     conf_path.push("config.toml");
     let conf: Config = RawConfig::from_str(&read_to_string(conf_path).unwrap()).unwrap().into();
-    let cli = Cli::parse();    
+    let cli = Cli::parse();
     let fldr = "";
     let pkg_name = "";
-    
+
     let ver = "2".to_string();
 
     match &cli.command{
         Commands::Install { package } => {
-
             let pkg_name = parse_name(package);
             let fldr = "".to_string();
             let path = "".to_string();
@@ -75,7 +74,7 @@ fn main() {
             // Package
             if package == ""{
                 panic!("A valid URL must be provided")
-            }            
+            }
             else if pkg_name.len() > 1{
                 let fldr = pkg_name[4].to_string();
                 println!("fldr: {}", fldr);
@@ -85,10 +84,10 @@ fn main() {
             else if pkg_name.len() == 1{
                 let fldr = package.to_string();
                 let path = format!("RoxPaks/Packages/src/{}", fldr);
-                install(package.to_string(), path) // url in this case is link to rox official repo                
+                install(package.to_string(), path) // url in this case is link to rox official repo
             }
 
-            
+
         }
         // Remove command
         Commands::Remove { package } => {
@@ -98,7 +97,7 @@ fn main() {
         Commands::Add { package } => {
             let pkg_name = parse_name(package);
             // Validation and Appropriation
-            // Package      
+            // Package
             if pkg_name.len() > 1{
                 let fldr = pkg_name[4].to_string();
                 println!("fldr: {}", fldr);
