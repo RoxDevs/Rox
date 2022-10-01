@@ -4,7 +4,7 @@ use clap::{Parser, Subcommand};
 use git2::Repository;
 use rand::distributions::{Alphanumeric, DistString};
 use std::fs;
-use rusqlite::{params, Connection, Result};
+use rusqlite::{Connection, Result};
 
 mod config;
 mod parser;
@@ -25,8 +25,6 @@ enum Commands {
     Remove { package: Option<String> },
 }
 
-
-
 fn main() {
     let cli = Cli::parse();
     let url = "https://github.com/RK33DV/unitytergen";
@@ -36,7 +34,7 @@ fn main() {
     match &cli.command {
         Commands::Install { package } => {
             println!("Installing{:?}", package);
-            let mut a = || -> Result<()> {
+            let a = || -> Result<()> {
                 let conn = Connection::open("src/packageLDB.db")?;
                 conn.execute(
                     "INSERT INTO pkgs (version, name, path, repo_url) VALUES (?1,?2,?3,?4)",
@@ -45,21 +43,22 @@ fn main() {
 
                 Ok(())
             };
-            a();
 
+            a().expect("Impossible state, skipping...");
 
             let _repo = match Repository::clone(url, path) {
                 Ok(repo) => repo,
-                Err(e) => panic!("installation failed : {}", e),
+                Err(e) => panic!("Installation failed : {}", e),
             };
 
         }
-        Commands::Remove { package: _ } => {
-            println!("Removing source code...");
-
-            fs::remove_dir_all("src/RoxPaks")
-            .expect("Error removing source code :(");
-         println!("source code removed successfully!");
+        Commands::Remove { package } => {
+            println!("Removing package...");
+            let path = format!("RoxPaks/Packages/src/{}", package.as_ref().unwrap());
+            match fs::remove_dir_all(path) {
+                Ok(_) => println!("Package removed successfully!"),
+                Err(_) => println!("Package not found in local repository")
+            }
     }
 }
 }
