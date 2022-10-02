@@ -1,5 +1,7 @@
 use std::env::current_exe;
+use std::fmt::format;
 use std::fs::read;
+use std::fs;
 
 use basic_funcs::add;
 #[allow(unused_variables)]
@@ -17,6 +19,8 @@ use basic_funcs::install::install;
 use basic_funcs::install::install_db;
 use basic_funcs::add::add;
 use config::RawConfig;
+
+use colored::Colorize;
 
 mod parser;
 
@@ -49,7 +53,7 @@ fn parse_name(url: &str) -> Vec<&str>{
 }
 
 fn main() {
-    let url = "";
+    let mut url = "".to_string();
     let mut conf_path = current_exe().unwrap();
     conf_path.pop();
     conf_path.push("config.toml");
@@ -87,7 +91,7 @@ fn main() {
             
         }
         // Remove command
-        Commands::Remove { package:_ } => {
+        Commands::Remove { package } => {
             todo!()
         }
         // Add command

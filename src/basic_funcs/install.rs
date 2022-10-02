@@ -3,7 +3,7 @@ use std::fmt::format;
 use git2::Repository;
 // use rusqlite::{Connection};
 use rusqlite::{Connection, Result, ffi::SQLITE_NULL};
-use sql_query_builder as sql;
+// use sql_query_builder as sql;
 
 use colored::Colorize;
 

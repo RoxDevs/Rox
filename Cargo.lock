@@ -781,7 +781,6 @@ dependencies = [
  "reqwest",
  "rusqlite",
  "serde",
- "sql_query_builder",
  "thiserror",
  "toml",
 ]
@@ -906,12 +905,6 @@ dependencies = [
  "libc",
  "winapi",
 ]
-
-[[package]]
-name = "sql_query_builder"
-version = "1.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fcc05493625711b0e248bb83095b5ab7a2083bd2997a14829a9510b5c0548979"
 
 [[package]]
 name = "strsim"
