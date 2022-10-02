@@ -70,7 +70,22 @@ fn main() {
         }
         Commands::Remove { package } => {
             println!("Removing package...");
-            let path = format!("RoxPaks/Packages/src/{}", package.as_ref().unwrap());
+            let path = format!("RoxPaks/Packages/src/{}", package.as_ref()
+                               .unwrap());
+
+            let mut search = || -> Result<()> {
+                let conn = Connection::open("src/packageLDB.db")?;
+                conn.execute(
+                    "DELETE FROM pkgs
+                    WHERE name = ?1;",
+                    (&package,)
+                )?;
+            
+                Ok(())
+            };
+
+            search().unwrap();
+
             match fs::remove_dir_all(path) {
                 Ok(_) => println!("Package removed successfully!"),
                 Err(_) => println!("Package not found in local repository")
