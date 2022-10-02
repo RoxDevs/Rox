@@ -18,5 +18,4 @@ serde = {version = "1.0.144", features = ["derive"]}
 rand = "0.8.5"
 git2 = "0.15.0"
 rusqlite = { version = "0.28.0", features = ["bundled"] }
-fantoccini = "0.19.3"
 # libsqlite3-sys = "0.25.1"

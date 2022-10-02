@@ -6,7 +6,6 @@ use rand::distributions::{Alphanumeric, DistString};
 use std::fs;
 use rusqlite::{params, Connection, Result};
 
-
 mod parser;
 
 #[derive(Parser)]
@@ -24,10 +23,16 @@ enum Commands {
     /// remove the source code of the packages
     Remove { package: Option<String> },
 }
-
-
+#[tokio::main]
+async fn findRepo() -> Result<(), fantoccini::error::CmdError> {
+    let c = ClientBuilder::native().connect("http://localhost:4444").await.expect("failed to connect to WebDriver");
+    c.goto("https://github.com").await?;
+    let f = c.form(Locator::Css("#form-control js-site-search-focus header-search-input jump-to-field js-jump-to-field")).await?;
+    Ok(())
+}
 
 fn main() {
+    findRepo();
     let cli = Cli::parse();
     let url = "https://github.com/RK33DV/unitytergen";
     let fldr = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
