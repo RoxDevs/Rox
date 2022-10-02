@@ -43,9 +43,10 @@ fn main() {
                 Ok(())
             };
             a();
+            let pkg_url = package.clone();
+            let pkg_url2 = pkg_url.unwrap();
 
-
-            let _repo = match Repository::clone(package.to_string(), path) {
+            let _repo = match Repository::clone(pkg_url2.as_str(), path) {
                 Ok(repo) => repo,
                 Err(e) => panic!("installation failed : {}", e),
             };
