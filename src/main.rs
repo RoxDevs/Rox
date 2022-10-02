@@ -48,10 +48,7 @@ fn main() {
     let conf: Config = RawConfig::from_str(&read_to_string(conf_path).unwrap())
         .unwrap()
         .into();
->>>>>>> 36a0abd (getting an error when i try to add the delete function. dont know why)
     let cli = Cli::parse();
-    let fldr = "";
-    let pkg_name = "";
 
     let ver = "2".to_string();
 
