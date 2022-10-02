@@ -23,16 +23,8 @@ enum Commands {
     /// remove the source code of the packages
     Remove { package: Option<String> },
 }
-#[tokio::main]
-async fn findRepo() -> Result<(), fantoccini::error::CmdError> {
-    let c = ClientBuilder::native().connect("http://localhost:4444").await.expect("failed to connect to WebDriver");
-    c.goto("https://github.com").await?;
-    let f = c.form(Locator::Css("#form-control js-site-search-focus header-search-input jump-to-field js-jump-to-field")).await?;
-    Ok(())
-}
 
 fn main() {
-    findRepo();
     let cli = Cli::parse();
     let url = "https://github.com/RK33DV/unitytergen";
     let fldr = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
@@ -53,7 +45,7 @@ fn main() {
             a();
 
 
-            let _repo = match Repository::clone(url, path) {
+            let _repo = match Repository::clone(package.to_string(), path) {
                 Ok(repo) => repo,
                 Err(e) => panic!("installation failed : {}", e),
             };
