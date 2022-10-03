@@ -9,7 +9,7 @@ use toml::from_str;
 pub struct RawVer {
     dependencies: Vec<String>,
     version: String,
-    tarballs: HashMap<String, String>,
+    tarballs: HashMap<String, (String, Vec<String>)>,
 }
 
 // Until the CLI is built
@@ -50,7 +50,7 @@ impl Into<Ver> for RawVer {
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Ver {
     pub dependencies: Vec<Vec<String>>,
-    pub tarballs: HashMap<String, String>,
+    pub tarballs: HashMap<String, (String, Vec<String>)>,
     pub major: usize,
     pub minor: usize,
     pub rev: usize,
@@ -116,10 +116,10 @@ mod tests {
                 version: "0.1.0".to_string(),
                 tarballs: HashMap::from([(
                     "x86_64-unknown-linux-gnu".to_string(),
-                    "linux".to_string()
+                    ("linux".to_string(), vec!["xxx".to_string()])
                 )])
             }
-        )
+        );
     }
 
     #[test]
@@ -136,7 +136,7 @@ mod tests {
                 rev: 0,
                 tarballs: HashMap::from([(
                     "x86_64-unknown-linux-gnu".to_string(),
-                    "linux".to_string()
+                    ("linux".to_string(), vec!["xxx".to_string()])
                 )])
             }
         )
@@ -157,9 +157,8 @@ mod tests {
                         minor: 1,
                         rev: 0,
                         tarballs: HashMap::from([
-                            ("x86_64-unknown-linux-gnu".to_string(), "linux".to_string()),
-                            ("x86_64-pc-windows-gnu".to_string(), "windows".to_string())
-                        ])
+                            ("x86_64-unknown-linux-gnu".to_string(), ("linux".to_string(), vec!["xxx".to_string()])),
+                        ]),
                     },
                     Ver {
                         dependencies: vec![vec!["xxx".to_string(), "yyy".to_string()]],
@@ -168,7 +167,7 @@ mod tests {
                         rev: 1,
                         tarballs: HashMap::from([(
                             "x86_64-unknown-linux-gnu".to_string(),
-                            "linux".to_string()
+                            ("linux".to_string(), vec!["xxx".to_string()])
                         )])
                     }
                 ],
