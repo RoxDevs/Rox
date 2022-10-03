@@ -1,12 +1,11 @@
-use std::fmt::format;
-
 use git2::Repository;
 // use rusqlite::{Connection};
-use rusqlite::{Connection, Result};
 use colored::Colorize;
+use rusqlite::{Connection, Result};
 
-#[derive(Debug)]
-#[derive(Clone)]
+use crate::config::Config;
+
+#[derive(Debug, Clone)]
 struct Pkg {
     version: String,
     name: String,
@@ -14,51 +13,61 @@ struct Pkg {
     repo_url: String,
 }
 
-pub fn install(pkg_name: String, path: String){
-// package, url, path
+pub fn install(pkg_name: String, path: String, conf: &Config) {
+    let mut db_path = conf.path.clone();
+    db_path.push("pakageLDB.db");
+    println!("{}", format!("Installing {}\n", pkg_name).green().bold());
 
-        println!("{}", format!("Installing {}\n", pkg_name).green().bold());
+    let a = || -> Result<()> {
+        let conn = Connection::open(format!("{}", db_path.to_str().unwrap())).unwrap();
+        let statement = format!("SELECT * FROM pkgs WHERE name='{}'", pkg_name);
+        let mut stmt = conn.prepare(&statement.as_str()).unwrap();
+        let pkg_iter = stmt
+            .query_map(
+                [],
+                |row| {
+                    Ok(Pkg {
+                        version: row.get(0)?,
+                        name: row.get(1)?,
+                        path: row.get(2)?,
+                        repo_url: row.get(3)?,
+                    })
+                },
+            )
+            .unwrap();
 
-        let a = || -> Result<()> {
-            let conn = Connection::open("/home/garuda/dev/Rox/src/packageLDB.db").unwrap();
-            let statement = format!("SELECT * FROM pkgs WHERE name='{}'", pkg_name);
-            let mut stmt = conn.prepare(&statement.as_str()).unwrap();
-            let pkg_iter = stmt.query_map(/*&[(pkg_name.as_str(), rep_url.as_str())]*/[], |row|{
-                Ok(Pkg {
-                    version: row.get(0)?,
-                    name: row.get(1)?,
-                    path: row.get(2)?,
-                    repo_url: row.get(3)?,
-                })
-            }).unwrap();
+        let mut result = Vec::new();
 
-            let mut result = Vec::new();
+        for r in pkg_iter {
+            result.push(r);
+        }
+        let result = result
+            .iter()
+            .map(|a| a.as_ref().unwrap().clone())
+            .collect::<Vec<Pkg>>();
 
-            for r in pkg_iter{
-                result.push(r);
-            }
-            let result = result.iter().map(|a|{a.as_ref().unwrap().clone()}).collect::<Vec<Pkg>>();
-
-            println!("Fetched data from DB\n");
-            println!("{}", "Installing...\n".yellow());
-            let _repo = match Repository::clone(&result.get(0).unwrap().repo_url, &path) {
-                Ok(repo) => repo,
-                Err(e) => panic!("Installation Failed: {}", e),
-            };
-            println!("{}", format!("Finished Installation of package {}\n", pkg_name).green().bold());
-            println!("{}", "Enjoy your Package ❤️ - Rox\n".red());
-            Ok(())
+        println!("Fetched data from DB\n");
+        println!("{}", "Installing...\n".yellow());
+        let _repo = match Repository::clone(&result.get(0).unwrap().repo_url, &path) {
+            Ok(repo) => repo,
+            Err(e) => panic!("Installation Failed: {}", e),
         };
-        a();
+        println!(
+            "{}",
+            format!("Finished Installation of package {}\n", pkg_name)
+                .green()
+                .bold()
+        );
+        println!("{}", "Enjoy your Package ❤️ - Rox\n".red());
+        Ok(())
+    };
+    a().unwrap();
+}
 
-        // let _repo = match Repository::clone(&rep_url, &path) {
-        //     Ok(repo) => repo,
-        //     Err(e) => panic!("installation failed : {}", e),
-        // };
-
-    }
-
-pub fn install_db(package: String, pkg_name: String, path: String, ver: String){
+/// Attach to database &
+pub fn install_db(package: String, pkg_name: String, path: String, ver: String, conf: &Config) {
+    let mut db_path = conf.path.clone();
+    db_path.push("pakageLDB.db");
     let _repo = match Repository::clone(&package, &path) {
         Ok(repo) => repo,
         Err(e) => panic!("installation failed : {}", e),
@@ -66,18 +75,18 @@ pub fn install_db(package: String, pkg_name: String, path: String, ver: String){
 
     println!("PACKAGE: {}", package);
     println!("PKG_NAME: {}", pkg_name);
-    println!("PATH: {}",path);
+    println!("PATH: {}", path);
     println!("VERSION: {}", ver);
 
     let a = || -> Result<()> {
-        let conn = Connection::open("/home/garuda/dev/Rox/src/packageLDB.db")?;
+        let conn = Connection::open(format!("{}", db_path.to_str().unwrap()))?;
         conn.execute(
             "INSERT INTO Pkgs (version, name, path, repo_url) VALUES (?1,?2,?3,?4)",
-            (/*&new_package.version, &new_package.name, &new_package.path, &new_package.repo_url*/ ver, pkg_name, path, package.to_string()),
+            (ver, pkg_name, path, package.to_string()),
         )?;
 
         Ok(())
     };
 
-    a();
+    a().unwrap();
 }

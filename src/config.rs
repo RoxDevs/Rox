@@ -13,10 +13,10 @@ impl RawConfig {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Config {
-    path: PathBuf,
-    target: String,
+    pub path: PathBuf,
+    pub target: String,
 }
 
 impl Into<Config> for RawConfig {
