@@ -5,7 +5,7 @@ mod config;
 use std::fs::read_to_string;
 
 mod basic_funcs;
-use basic_funcs::add::add;
+use basic_funcs::add::{add, add_repo};
 use basic_funcs::install::install;
 use basic_funcs::install::install_db;
 use config::RawConfig;
@@ -36,6 +36,17 @@ enum Commands {
         package: String,
         ver: Option<String>,
     },
+    Repo {
+        #[clap[subcommand]]
+        cmd: RepoCommand
+    }
+}
+
+#[derive(Subcommand)]
+enum RepoCommand {
+    Add {
+        url: String
+    }
 }
 
 /// Convert package to [`Vec`]
@@ -108,5 +119,6 @@ fn main() {
                 panic!("A URL must be provided")
             }
         }
+        Commands::Repo { cmd: RepoCommand::Add { url } } => add_repo(url.as_str(), &conf)
     }
 }

@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 homepage = "https://github.com/muppi090909/Rox"
 license = "GPL-2.0-only"
-authors = [ "Ishaan Subramanya" ]
+authors = [ "Ishaan Subramanya", "Gaurav Chandrashekar" ]
 documentation = "https://docs.rs/Rox/0.1.0/Rox/"
 exclude = ["tomls/*", "tomls/", "configs/*", "configs", "assets/*", "assets"]
 
