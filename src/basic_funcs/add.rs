@@ -1,4 +1,4 @@
-use std::fs::create_dir;
+use std::fs::{create_dir, read_dir, remove_dir_all};
 
 use git2::Repository;
 use rusqlite::{Connection, Result};
@@ -29,6 +29,12 @@ pub fn add_repo(url: &str, conf: &Config) {
     path.push("tmp");
     create_dir(path.clone()).unwrap();
     path.push("repo");
-    let repo = Repository::clone_recurse(url, path).unwrap();
+    Repository::clone_recurse(url, path.clone()).unwrap();
+    let paths = read_dir(path.to_str().unwrap()).unwrap();
 
+    for path in paths {
+        let path = path.unwrap();
+        println!("{:#?}", path)
+    }
+    remove_dir_all(path.clone()).unwrap()
 }
