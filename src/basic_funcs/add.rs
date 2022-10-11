@@ -1,4 +1,5 @@
-use std::fs::{create_dir, read_dir, remove_dir_all, remove_dir};
+use std::fs::{create_dir, read_dir, remove_dir_all, remove_dir, File};
+use csv::WriterBuilder;
 use git2::Repository;
 use rusqlite::{Connection, Result};
 
@@ -29,13 +30,20 @@ pub fn add_repo(url: &str, conf: &Config) {
     create_dir(path.clone()).unwrap();
     path.push("repo");
     Repository::clone_recurse(url, path.clone()).unwrap();
+    path.pop();
+    path.push("repos.csv");
+    let file = File::open(path).unwrap();
     let paths = read_dir(path.to_str().unwrap()).unwrap();
-
+    if !path.is_file() {
+        File::create(path).unwrap()
+    }
+    let wrtr = WriterBuilder::new().delimiter(b',').from_path(path).unwrap();
     for path in paths {
         if format!("{:#?}", path.as_ref().unwrap().file_name()) == r#"".git""# {
             continue;
         }
-        println!("{:#?}", path.unwrap().file_name());
+        let path = path.unwrap();
+        println!("{:#?}", path.file_name());
     }
     remove_dir_all(path.clone()).unwrap();
     path.pop();

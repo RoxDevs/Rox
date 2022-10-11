@@ -1,8 +1,9 @@
 use clap::{Parser, Subcommand};
 use config::Config;
+use rusqlite::Connection;
 use std::env::current_exe;
 mod config;
-use std::fs::read_to_string;
+use std::fs::{self, read_to_string};
 
 mod basic_funcs;
 use basic_funcs::add::{add, add_repo};
@@ -28,9 +29,7 @@ enum Commands {
         ver: Option<String>,
     },
     /// remove the source code of the packages
-    Remove {
-        package: String,
-    },
+    Remove { package: String },
     /// Add new repo to db
     Add {
         package: String,
@@ -38,67 +37,13 @@ enum Commands {
     },
     Repo {
         #[clap[subcommand]]
-        cmd: RepoCommand
-}
-
-fn main() {
-    let cli = Cli::parse();
-    let url = "https://github.com/RK33DV/unitytergen";
-    let fldr = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
-    let path = format!("RoxPaks/Packages/src/{}", fldr);
-    let ver = "2".to_string();
-    match &cli.command {
-        Commands::Install { package } => {
-            println!("Installing{:?}", package);
-            let a = || -> Result<()> {
-                let conn = Connection::open("src/packageLDB.db")?;
-                conn.execute(
-                    "INSERT INTO pkgs (version, name, path, repo_url) VALUES (?1,?2,?3,?4)",
-                    (&ver, &package, &fldr, &url.to_string()),
-                )?;
-
-                Ok(())
-            };
-
-            a().expect("Impossible state, skipping...");
-
-            let _repo = match Repository::clone(url, path) {
-                Ok(repo) => repo,
-                Err(e) => panic!("Installation failed : {}", e),
-            };
-
-        }
-        Commands::Remove { package } => {
-            println!("Removing package...");
-            let path = format!("RoxPaks/Packages/src/{}", package.as_ref()
-                               .unwrap());
-
-            let mut search = || -> Result<()> {
-                let conn = Connection::open("src/packageLDB.db")?;
-                conn.execute(
-                    "DELETE FROM pkgs
-                    WHERE name = ?1;",
-                    (&package,)
-                )?;
-            
-                Ok(())
-            };
-
-            search().unwrap();
-
-            match fs::remove_dir_all(path) {
-                Ok(_) => println!("Package removed successfully!"),
-                Err(_) => println!("Package not found in local repository")
-            }
->>>>>>> 692dd39 (main.rs: remove package)
-    }
+        cmd: RepoCommand,
+    },
 }
 
 #[derive(Subcommand)]
 enum RepoCommand {
-    Add {
-        url: String
-    }
+    Add { url: String },
 }
 
 /// Convert package to [`Vec`]
@@ -139,7 +84,7 @@ fn main() {
                     pkg_name[4].to_string(),
                     path,
                     ver.clone().unwrap().to_string(),
-                    &conf
+                    &conf,
                 )
             } else if pkg_name.len() == 1 {
                 let fldr = package.to_string();
@@ -167,12 +112,14 @@ fn main() {
                     package.to_string(),
                     pkg_name[4].to_string(),
                     ver.clone().unwrap().to_string(),
-                    &conf
+                    &conf,
                 )
             } else {
                 panic!("A URL must be provided")
             }
         }
-        Commands::Repo { cmd: RepoCommand::Add { url } } => add_repo(url.as_str(), &conf)
+        Commands::Repo {
+            cmd: RepoCommand::Add { url },
+        } => add_repo(url.as_str(), &conf),
     }
 }
