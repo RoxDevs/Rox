@@ -19,6 +19,7 @@ rand = "0.8.5"
 git2 = "0.15.0"
 rusqlite = { version = "0.28.0", features = ["bundled"] }
 thiserror = "1.0.37"
-# sql_query_builder = "1.0.2"
 colored = "2.0.0"
 openssl = { version = "0.10", features = ["vendored"] }
+sea-query = "0.26.3"
+sea-query-rusqlite = { version = "0.1.0", git = "https://github.com/SeaQL/sea-query" }

@@ -93,7 +93,9 @@ fn main() {
                 let fldr = package.to_string();
                 let mut path = conf.clone().path;
                 path.push("pkgs");
+                #[cfg(target_os = "linux")]
                 let path = format!("{}/{}", path.to_str().unwrap(), fldr);
+
                 install(package.to_string(), path, &conf) // url in this case is link to rox official repo
             }
         }
