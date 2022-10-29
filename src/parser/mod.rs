@@ -68,8 +68,8 @@ pub struct RawProject {
 // Until the CLI is built
 #[allow(dead_code)]
 impl RawProject {
-    pub fn create_from_file(name: &str) -> Result<Self, Box<dyn std::error::Error>> {
-        let file = std::fs::read_to_string(name)?;
+    pub fn create_from_file(path: &str) -> Result<Self, Box<dyn std::error::Error>> {
+        let file = std::fs::read_to_string(path)?;
         Ok(RawProject::create_from_str(file.as_str())?.clone())
     }
     fn create_from_str(contents: &str) -> Result<Self, Box<dyn std::error::Error>> {

@@ -1,7 +1,7 @@
 use git2::Repository;
 // use rusqlite::{Connection};
 use colored::Colorize;
-use rusqlite::{Connection, Result};
+use rusqlite::{Connection, Result, NO_PARAMS};
 
 use crate::config::Config;
 
@@ -80,6 +80,16 @@ pub fn install_db(package: String, pkg_name: String, path: String, ver: String, 
 
     let a = || -> Result<()> {
         let conn = Connection::open(format!("{}", db_path.to_str().unwrap()))?;
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS Pkgs (
+                id integer primary key,
+                version text,
+                name text,
+                path text,
+                repo_url text
+            );",
+            NO_PARAMS,
+        )?;
         conn.execute(
             "INSERT INTO Pkgs (version, name, path, repo_url) VALUES (?1,?2,?3,?4)",
             (ver, pkg_name, path, package.to_string()),
