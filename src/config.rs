@@ -34,12 +34,14 @@ mod tests {
 
     #[test]
     fn basic_test() {
-        let config: Config = RawConfig::from_str(include_str!("../configs/example.toml")).unwrap().into();
+        let config: Config = RawConfig::from_str(include_str!("../configs/config.toml"))
+            .unwrap()
+            .into();
         assert_eq!(
             config,
             Config {
-                path: PathBuf::from_str("/home/muppi/.rox/").unwrap(),
-                target: "x86_64-unknown-linux-gnu".to_string()
+                path: PathBuf::from_str(r#"D:\rust proj\rox\packages"#).unwrap(),
+                target: "x86_64-pc-windows-gnu".to_string()
             }
         )
     }

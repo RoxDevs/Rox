@@ -1,9 +1,9 @@
 use clap::{Parser, Subcommand};
 use config::Config;
-use rusqlite::Connection;
 use std::env::current_exe;
 mod config;
-use std::fs::{self, read_to_string};
+use std::fs::read_to_string;
+use std::path::PathBuf;
 
 mod basic_funcs;
 use basic_funcs::add::{add, add_repo};
@@ -60,9 +60,18 @@ fn main() {
     let mut conf_path = current_exe().unwrap();
     conf_path.pop();
     conf_path.push("config.toml");
-    let conf: Config = RawConfig::from_str(&read_to_string(conf_path).unwrap())
+    let configuration: Config = RawConfig::from_str(&read_to_string(conf_path).unwrap())
         .unwrap()
         .into();
+
+    println!("{:?}", configuration.path);
+
+    let windows_path_buf = PathBuf::from(configuration.path);
+
+    let conf = Config {
+        path: windows_path_buf,
+        target: configuration.target,
+    };
     let cli = Cli::parse();
 
     match &cli.command {
@@ -78,7 +87,12 @@ fn main() {
                 println!("fldr: {}", fldr);
                 let mut path = conf.clone().path;
                 path.push("pkgs");
-                let path = format!("{}/{}", path.to_str().unwrap(), fldr);
+
+                path.push(fldr);
+                //let path = format!("{}/{}", path.to_str().unwrap(), fldr);
+
+                let path = format!("{}", path.to_str().unwrap());
+                println!("{:?}", path);
                 install_db(
                     package.to_string(),
                     pkg_name[4].to_string(),
@@ -87,13 +101,17 @@ fn main() {
                     &conf,
                 )
             } else if pkg_name.len() == 1 {
-                let fldr = package.to_string();
+                let _fldr = package.to_string();
                 let mut path = conf.clone().path;
                 path.push("pkgs");
                 #[cfg(target_os = "linux")]
                 let path = format!("{}/{}", path.to_str().unwrap(), fldr);
 
-                install(package.to_string(), path, &conf) // url in this case is link to rox official repo
+                install(
+                    package.to_string(),
+                    path.to_str().unwrap().to_string(),
+                    &conf,
+                ) // url in this case is link to rox official repo
             }
         }
         // Remove command
