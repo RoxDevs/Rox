@@ -5,7 +5,7 @@ use std::fs::{create_dir_all, read_dir, remove_dir_all, File};
 
 use crate::{
     config::Config,
-    parser::{Project, RawProject},
+    parser::{Project, RawProject, Ver},
 };
 
 pub fn add(package: String, pkg_name: String, ver: String, conf: &Config) {
@@ -85,7 +85,6 @@ pub fn add_repo(url: &str, conf: &Config) {
 
         match conn.execute(
             "CREATE TABLE IF NOT EXISTS repo (
-
                 id integer primary key AUTOINCREMENT,
                 name text,
                 authors text,
@@ -99,7 +98,6 @@ pub fn add_repo(url: &str, conf: &Config) {
 
         match conn.execute(
             "CREATE TABLE IF NOT EXISTS version (
-
                 id integer primary key AUTOINCREMENT,
                 id_repo integer FOREIGN KEY REFERENCES repo(id) NOT NULL,
                 details_json text,
@@ -117,7 +115,7 @@ pub fn add_repo(url: &str, conf: &Config) {
         for version in manifest.versions.iter() {
             match conn.execute(
                 "INSERT INTO version (id_repo, details_json) VALUES (?1,?2)",
-                (repo_id, serde_json::to_string(version).unwrap()),
+                (repo_id, VersionDetails::parse(version).inner_ref()),
             ) {
                 Ok(conn) => conn,
                 Err(_) => panic!("could not insert version"),
@@ -130,18 +128,14 @@ pub fn add_repo(url: &str, conf: &Config) {
     remove_dir_all(path.clone()).unwrap();
 }
 
-//tries to insert a Repo Struct ((TODO create repo struct and impl parsing to reduce boiler plate code))
+// tries to insert a Repo Struct
 // returns row's pk id
 pub fn insert_repo(db: &Connection, manifest: &Project) -> Result<i64, rusqlite::Error> {
     match db.execute(
         "INSERT INTO repo (name, authors, git) VALUES (?1,?2,?3)",
         (
             manifest.name.to_owned(),
-            manifest
-                .authors
-                .iter()
-                .map(|x| x.to_string() + ",")
-                .collect::<String>(),
+            Authors::parse(&manifest.authors).inner_ref(),
             manifest.git.to_owned(),
         ),
     ) {
@@ -151,3 +145,49 @@ pub fn insert_repo(db: &Connection, manifest: &Project) -> Result<i64, rusqlite:
 
     Ok(db.last_insert_rowid())
 }
+
+pub struct Authors(String);
+
+impl Authors {
+    // Parses the Vector of authors into a String of comma
+    // separated values avoiding all the issues with debugging
+    pub fn parse(authors: &Vec<String>) -> Authors {
+        if authors.is_empty() {
+            return Self("Unknown Author".to_owned());
+        }
+        Self(
+            authors
+                .iter()
+                .map(|x| x.to_string() + ",")
+                .collect::<String>(),
+        )
+    }
+
+    pub fn inner_ref(&self) -> &str {
+        // The caller gets a shared reference to the inner string.
+        // This gives the caller **read-only** access,
+        // they have no way to compromise our invariants!
+        &self.0
+    }
+}
+
+pub struct VersionDetails(String);
+// TODO: implement TryInto to convert from Json to Ver
+impl VersionDetails {
+    // Parses Version into a json String handling the errors
+    pub fn parse(version: &Ver) -> VersionDetails {
+        match serde_json::to_string(version) {
+            Ok(version) => Self(version),
+            Err(_) => panic!("Error while trying to convert version into JSON"),
+        }
+    }
+
+    pub fn inner_ref(&self) -> &str {
+        // The caller gets a shared reference to the inner string.
+        // This gives the caller **read-only** access,
+        // they have no way to compromise our invariants!
+        &self.0
+    }
+}
+
+//TODO add tests
