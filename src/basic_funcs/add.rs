@@ -113,7 +113,7 @@ pub fn add_repo(url: &str, conf: &Config) {
         //inserting repo and retrieving the id for version
         let repo_id = insert_repo(&conn, &manifest).expect("could not insert repo");
 
-        //inserting version as json
+        //inserting versions as json string
         for version in manifest.versions.iter() {
             match conn.execute(
                 "INSERT INTO version (id_repo, details_json) VALUES (?1,?2)",
