@@ -70,7 +70,7 @@ pub fn install_db(package: String, pkg_name: String, path: String, ver: String, 
     }
     let mut db_path = conf.path.clone();
     dbg!(db_path.clone());
-    db_path.push("packageLDB.db");
+    db_path.push("pakageLDB.db");
     let _repo = match Repository::clone(&package, &path) {
         Ok(repo) => repo,
         Err(e) => panic!("installation failed : {}", e),
@@ -85,10 +85,11 @@ pub fn install_db(package: String, pkg_name: String, path: String, ver: String, 
         let conn = Connection::open(format!("{}", db_path.to_str().unwrap()))?;
         conn.execute(
             "CREATE TABLE IF NOT EXISTS Pkgs (
-                id integer primary key, 
-                version text, 
-                name text, 
-                path text, 
+
+                id integer primary key,
+                version text,
+                name text,
+                path text,
                 repo_url text
             );",
             NO_PARAMS,
