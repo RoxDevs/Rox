@@ -1,6 +1,8 @@
 use clap::{Parser, Subcommand};
+
 use config::Config;
 use std::env::current_exe;
+
 mod config;
 use std::fs::read_to_string;
 use std::path::PathBuf;
@@ -41,6 +43,7 @@ enum Commands {
     },
 }
 
+
 #[derive(Subcommand)]
 enum RepoCommand {
     Add { url: String },
@@ -75,6 +78,7 @@ fn main() {
     let cli = Cli::parse();
 
     match &cli.command {
+
         Commands::Install { package, ver } => {
             let pkg_name = parse_name(package);
 
@@ -114,6 +118,7 @@ fn main() {
                 ) // url in this case is link to rox official repo
             }
         }
+
         // Remove command
         Commands::Remove { package: _ } => {
             todo!()
@@ -139,5 +144,6 @@ fn main() {
         Commands::Repo {
             cmd: RepoCommand::Add { url },
         } => add_repo(url.as_str(), &conf),
+
     }
 }
