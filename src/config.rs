@@ -2,7 +2,7 @@ use serde::Deserialize;
 use std::{path::PathBuf, str::FromStr};
 
 #[derive(Debug, Deserialize, PartialEq)]
-struct RawConfig {
+pub struct RawConfig {
     path: String,
     target: String,
 }
@@ -13,10 +13,10 @@ impl RawConfig {
     }
 }
 
-#[derive(Debug, PartialEq)]
-struct Config {
-    path: PathBuf,
-    target: String,
+#[derive(Debug, PartialEq, Clone)]
+pub struct Config {
+    pub path: PathBuf,
+    pub target: String,
 }
 
 impl Into<Config> for RawConfig {
@@ -34,12 +34,14 @@ mod tests {
 
     #[test]
     fn basic_test() {
-        let config: Config = RawConfig::from_str(include_str!("../configs/example.toml")).unwrap().into();
+        let config: Config = RawConfig::from_str(include_str!("../configs/config.toml"))
+            .unwrap()
+            .into();
         assert_eq!(
             config,
             Config {
-                path: PathBuf::from_str("/home/muppi/.rox/").unwrap(),
-                target: "x86_64-unknown-linux-gnu".to_string()
+                path: PathBuf::from_str(r#"D:\rust proj\rox\packages"#).unwrap(),
+                target: "x86_64-pc-windows-gnu".to_string()
             }
         )
     }

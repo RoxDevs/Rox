@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use toml::from_str;
 
 // This is until the CLI is implemented
@@ -9,7 +9,7 @@ use toml::from_str;
 pub struct RawVer {
     dependencies: Vec<String>,
     version: String,
-    tarballs: HashMap<String, String>,
+    tarballs: HashMap<String, (String, Vec<String>)>,
 }
 
 // Until the CLI is built
@@ -47,10 +47,10 @@ impl Into<Ver> for RawVer {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, Debug)]
+#[derive(Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub struct Ver {
     pub dependencies: Vec<Vec<String>>,
-    pub tarballs: HashMap<String, String>,
+    pub tarballs: HashMap<String, (String, Vec<String>)>,
     pub major: usize,
     pub minor: usize,
     pub rev: usize,
@@ -68,8 +68,8 @@ pub struct RawProject {
 // Until the CLI is built
 #[allow(dead_code)]
 impl RawProject {
-    pub fn create_from_file(name: &str) -> Result<Self, Box<dyn std::error::Error>> {
-        let file = std::fs::read_to_string(name)?;
+    pub fn create_from_file(path: &str) -> Result<Self, Box<dyn std::error::Error>> {
+        let file = std::fs::read_to_string(path)?;
         Ok(RawProject::create_from_str(file.as_str())?.clone())
     }
     fn create_from_str(contents: &str) -> Result<Self, Box<dyn std::error::Error>> {
@@ -116,10 +116,10 @@ mod tests {
                 version: "0.1.0".to_string(),
                 tarballs: HashMap::from([(
                     "x86_64-unknown-linux-gnu".to_string(),
-                    "linux".to_string()
+                    ("linux".to_string(), vec!["xxx".to_string()])
                 )])
             }
-        )
+        );
     }
 
     #[test]
@@ -136,7 +136,7 @@ mod tests {
                 rev: 0,
                 tarballs: HashMap::from([(
                     "x86_64-unknown-linux-gnu".to_string(),
-                    "linux".to_string()
+                    ("linux".to_string(), vec!["xxx".to_string()])
                 )])
             }
         )
@@ -156,10 +156,10 @@ mod tests {
                         major: 0,
                         minor: 1,
                         rev: 0,
-                        tarballs: HashMap::from([
-                            ("x86_64-unknown-linux-gnu".to_string(), "linux".to_string()),
-                            ("x86_64-pc-windows-gnu".to_string(), "windows".to_string())
-                        ])
+                        tarballs: HashMap::from([(
+                            "x86_64-unknown-linux-gnu".to_string(),
+                            ("linux".to_string(), vec!["xxx".to_string()])
+                        ),]),
                     },
                     Ver {
                         dependencies: vec![vec!["xxx".to_string(), "yyy".to_string()]],
@@ -168,7 +168,7 @@ mod tests {
                         rev: 1,
                         tarballs: HashMap::from([(
                             "x86_64-unknown-linux-gnu".to_string(),
-                            "linux".to_string()
+                            ("linux".to_string(), vec!["xxx".to_string()])
                         )])
                     }
                 ],
