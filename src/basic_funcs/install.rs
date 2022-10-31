@@ -3,7 +3,7 @@ use std::{fs, path::PathBuf, str::FromStr};
 use git2::Repository;
 // use rusqlite::{Connection};
 use colored::Colorize;
-use rusqlite::{Connection, Result, NO_PARAMS};
+use rusqlite::{Connection, Result};
 
 use crate::config::Config;
 
@@ -92,7 +92,7 @@ pub fn install_db(package: String, pkg_name: String, path: String, ver: String, 
                 path text,
                 repo_url text
             );",
-            NO_PARAMS,
+            [],
         )?;
         conn.execute(
             "INSERT INTO Pkgs (version, name, path, repo_url) VALUES (?1,?2,?3,?4)",

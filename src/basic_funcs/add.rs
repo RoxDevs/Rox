@@ -1,6 +1,6 @@
 use csv::WriterBuilder;
 use git2::Repository;
-use rusqlite::{Connection, Result, NO_PARAMS};
+use rusqlite::{Connection, Result};
 use std::fs::{create_dir_all, read_dir, remove_dir_all, File};
 
 use crate::{
