@@ -43,7 +43,6 @@ enum Commands {
     },
 }
 
-
 #[derive(Subcommand)]
 enum RepoCommand {
     Add { url: String },
@@ -78,7 +77,6 @@ fn main() {
     let cli = Cli::parse();
 
     match &cli.command {
-
         Commands::Install { package, ver } => {
             let pkg_name = parse_name(package);
 
@@ -105,17 +103,20 @@ fn main() {
                     &conf,
                 )
             } else if pkg_name.len() == 1 {
-                let _fldr = package.to_string();
+                let fldr = package.to_string();
                 let mut path = conf.clone().path;
                 path.push("pkgs");
-                #[cfg(target_os = "linux")]
-                let path = format!("{}/{}", path.to_str().unwrap(), fldr);
 
-                install(
-                    package.to_string(),
-                    path.to_str().unwrap().to_string(),
-                    &conf,
-                ) // url in this case is link to rox official repo
+                #[cfg(target_os = "linux")]
+                let final_path = format!("{}/{}", path.to_str().unwrap(), fldr);
+
+                #[cfg(target_os = "windows")]
+                let final_path =
+                    format!("{}{}{}", path.to_str().unwrap(), r#"\\"#.to_owned(), fldr);
+
+                dbg!(path);
+
+                install(package.to_string(), final_path, &conf) // url in this case is link to rox official repo
             }
         }
 
@@ -144,6 +145,5 @@ fn main() {
         Commands::Repo {
             cmd: RepoCommand::Add { url },
         } => add_repo(url.as_str(), &conf),
-
     }
 }
