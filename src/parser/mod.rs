@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use toml::from_str;
 
 // This is until the CLI is implemented
@@ -47,7 +47,7 @@ impl Into<Ver> for RawVer {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, Debug)]
+#[derive(Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub struct Ver {
     pub dependencies: Vec<Vec<String>>,
     pub tarballs: HashMap<String, (String, Vec<String>)>,
@@ -156,9 +156,10 @@ mod tests {
                         major: 0,
                         minor: 1,
                         rev: 0,
-                        tarballs: HashMap::from([
-                            ("x86_64-unknown-linux-gnu".to_string(), ("linux".to_string(), vec!["xxx".to_string()])),
-                        ]),
+                        tarballs: HashMap::from([(
+                            "x86_64-unknown-linux-gnu".to_string(),
+                            ("linux".to_string(), vec!["xxx".to_string()])
+                        ),]),
                     },
                     Ver {
                         dependencies: vec![vec!["xxx".to_string(), "yyy".to_string()]],

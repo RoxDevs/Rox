@@ -1,3 +1,5 @@
+use std::{fs, path::PathBuf, str::FromStr};
+
 use git2::Repository;
 // use rusqlite::{Connection};
 use colored::Colorize;
@@ -23,17 +25,14 @@ pub fn install(pkg_name: String, path: String, conf: &Config) {
         let statement = format!("SELECT * FROM pkgs WHERE name='{}'", pkg_name);
         let mut stmt = conn.prepare(&statement.as_str()).unwrap();
         let pkg_iter = stmt
-            .query_map(
-                [],
-                |row| {
-                    Ok(Pkg {
-                        version: row.get(0)?,
-                        name: row.get(1)?,
-                        path: row.get(2)?,
-                        repo_url: row.get(3)?,
-                    })
-                },
-            )
+            .query_map([], |row| {
+                Ok(Pkg {
+                    version: row.get(0)?,
+                    name: row.get(1)?,
+                    path: row.get(2)?,
+                    repo_url: row.get(3)?,
+                })
+            })
             .unwrap();
 
         let mut result = Vec::new();
@@ -66,7 +65,11 @@ pub fn install(pkg_name: String, path: String, conf: &Config) {
 
 /// Attach to database &
 pub fn install_db(package: String, pkg_name: String, path: String, ver: String, conf: &Config) {
+    if !PathBuf::from_str(&path).unwrap().is_dir() {
+        fs::create_dir_all(&path).unwrap();
+    }
     let mut db_path = conf.path.clone();
+    dbg!(db_path.clone());
     db_path.push("pakageLDB.db");
     let _repo = match Repository::clone(&package, &path) {
         Ok(repo) => repo,
@@ -88,7 +91,7 @@ pub fn install_db(package: String, pkg_name: String, path: String, ver: String, 
                 path text,
                 repo_url text
             );",
-            NO_PARAMS,
+            [],
         )?;
         conn.execute(
             "INSERT INTO Pkgs (version, name, path, repo_url) VALUES (?1,?2,?3,?4)",
