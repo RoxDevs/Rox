@@ -8,7 +8,6 @@ use crate::{
     parser::{Project, RawProject, Ver},
 };
 
-
 pub fn add(package: String, pkg_name: String, ver: String, conf: &Config) {
     let mut db_path = conf.path.clone();
     db_path.push("pakageLDB.db");
@@ -64,69 +63,78 @@ pub fn add_repo(url: &str, conf: &Config) {
         repo.pop();
         repo.push("tmp");
         repo.push("repo");
-        let manifest: Project = RawProject::create_from_file(
+
+        let manifest = RawProject::create_from_file(
             format!(
-                "{}/{}",
+                "{}{}{}", //{}/{}
                 repo.to_str().unwrap(),
+                r#"\"#, //to remove
                 file.file_name().to_str().unwrap()
             )
             .as_str(),
-        )
-        .unwrap()
-        .into();
-        dbg!(manifest.clone());
+        );
+        /* .unwrap()
+        .into() */
+        dbg!(manifest.unwrap());
 
-        let mut db_path = conf.path.clone();
-        db_path.push("pakageLDB.db");
+        /*
+            let mut db_path = conf.path.clone();
+            db_path.push("pakageLDB.db");
 
-        let conn = match Connection::open(format!("{}", db_path.to_str().unwrap())) {
-            Ok(conn) => conn,
-            Err(_) => panic!("could not connect to the database"),
-        };
-
-        match conn.execute(
-            "CREATE TABLE IF NOT EXISTS repo (
-                id integer primary key AUTOINCREMENT,
-                name text,
-                authors text,
-                git text
-            );",
-            [],
-        ) {
-            Ok(conn) => conn,
-            Err(_) => panic!("could not create table repo"),
-        };
-
-        match conn.execute(
-            "CREATE TABLE IF NOT EXISTS version (
-                id integer primary key AUTOINCREMENT,
-                id_repo integer FOREIGN KEY REFERENCES repo(id) NOT NULL,
-                details_json text,
-            );",
-            [],
-        ) {
-            Ok(conn) => conn,
-            Err(_) => panic!("could not create table repo"),
-        };
-
-        //inserting repo and retrieving the id for version
-        let repo_id = insert_repo(&conn, &manifest).expect("could not insert repo");
-
-        //inserting versions as json string
-        for version in manifest.versions.iter() {
-            match conn.execute(
-                "INSERT INTO version (id_repo, details_json) VALUES (?1,?2)",
-                (repo_id, VersionDetails::parse(version).inner_ref()),
-            ) {
+            let conn = match Connection::open(format!("{}", db_path.to_str().unwrap())) {
                 Ok(conn) => conn,
-                Err(_) => panic!("could not insert version"),
+                Err(_) => panic!("could not connect to the database"),
             };
-        }
-    }
-    //clear after adding to db
-    path.pop();
-    path.push("tmp");
-    remove_dir_all(path.clone()).unwrap();
+
+            //creating repo and version tables with mapping
+            create_repo_tables(&conn);
+
+            //inserting repo and retrieving the id for version
+            let repo_id = insert_repo(&conn, &manifest).expect("could not insert repo");
+
+            //inserting versions as json string
+            for version in manifest.versions.iter() {
+                match conn.execute(
+                    "INSERT INTO version (id_repo, details_json) VALUES (?1,?2)",
+                    (repo_id, VersionDetails::parse(version).inner_ref()),
+                ) {
+                    Ok(conn) => conn,
+                    Err(_) => panic!("could not insert version"),
+                };
+            }
+        } */
+    } /*
+      //clear after adding to db
+      path.pop();
+      path.push("tmp");
+      remove_dir_all(path.clone()).unwrap(); */
+}
+
+pub fn create_repo_tables(conn: &Connection) {
+    match conn.execute(
+        "CREATE TABLE IF NOT EXISTS repo (
+            id integer primary key AUTOINCREMENT,
+            name text,
+            authors text,
+            git text
+        );",
+        [],
+    ) {
+        Ok(conn) => conn,
+        Err(_) => panic!("could not create table repo"),
+    };
+
+    match conn.execute(
+        "CREATE TABLE IF NOT EXISTS version (
+            id integer primary key AUTOINCREMENT,
+            id_repo integer FOREIGN KEY REFERENCES repo(id) NOT NULL,
+            details_json text,
+        );",
+        [],
+    ) {
+        Ok(conn) => conn,
+        Err(_) => panic!("could not create table repo"),
+    };
 }
 
 // tries to insert a Repo Struct
@@ -191,4 +199,47 @@ impl VersionDetails {
     }
 }
 
+// deserializes the json string inside VersionDetails
+impl TryFrom<VersionDetails> for Ver {
+    type Error = String;
+    fn try_from(value: VersionDetails) -> Result<Self, Self::Error> {
+        let version: Ver = match serde_json::from_str(value.inner_ref()) {
+            Ok(version) => version,
+            Err(_) => return Err(String::from("Couldn't deserialize json string")),
+        };
+        Ok(version)
+    }
+}
+
 //TODO add tests
+
+#[cfg(test)]
+mod tests {
+
+    #[test]
+    fn inserting_test_repo() {
+        /*  let mut path = std::env::current_dir().expect("Failed to determine the current directory");
+        path.push("tmp");
+        path.push("test.db");
+        if !path.is_file() {
+            File::create(path.clone()).unwrap();
+        }
+
+        let conn = match Connection::open(format!("{}", path.to_str().unwrap())) {
+            Ok(conn) => conn,
+            Err(_) => panic!("could not connect to the database"),
+        };
+
+        create_repo_tables(&conn); */
+        //compose manifest
+        // ....
+
+        //insert manifest
+        // ....
+
+        //assert
+        // ....
+
+        assert_eq!(1, 1)
+    }
+}

@@ -34,7 +34,7 @@ mod tests {
 
     #[test]
     fn basic_test() {
-        let config: Config = RawConfig::from_str(include_str!("../configs/config.toml"))
+        let config: Config = RawConfig::from_str(include_str!(r#"..\configs\example.toml"#))
             .unwrap()
             .into();
         assert_eq!(
