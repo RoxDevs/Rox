@@ -63,57 +63,70 @@ pub fn add_repo(url: &str, conf: &Config) {
         repo.pop();
         repo.push("tmp");
         repo.push("repo");
-
-        let manifest = RawProject::create_from_file(
+        #[cfg(target_os = "linux")]
+        let manifest: Project = RawProject::create_from_file(
             format!(
-                "{}{}{}", //{}/{}
+                "{}/{}",
                 repo.to_str().unwrap(),
-                r#"\"#, //to remove
                 file.file_name().to_str().unwrap()
             )
             .as_str(),
-        );
-        /* .unwrap()
-        .into() */
-        dbg!(manifest.unwrap());
+        )
+        .unwrap()
+        .into();
+        #[cfg(target_os = "windows")]
+        let manifest: Project = RawProject::create_from_file(
+            format!(
+                r#"{}\{}"#,
+                repo.to_str().unwrap(),
+                file.file_name().to_str().unwrap()
+            )
+            .as_str(),
+        )
+        .unwrap()
+        .into();
+        dbg!(manifest.clone());
 
-        /*
-            let mut db_path = conf.path.clone();
-            db_path.push("pakageLDB.db");
+        let mut db_path = conf.path.clone();
+        db_path.push("pakageLDB.db");
 
-            let conn = match Connection::open(format!("{}", db_path.to_str().unwrap())) {
+        //connecting to db
+        let conn = match Connection::open(format!("{}", db_path.to_str().unwrap())) {
+            Ok(conn) => conn,
+            Err(_) => panic!("could not connect to the database"),
+        };
+
+        //creating repo and version tables with mapping
+        create_repo_tables(&conn);
+
+        //inserting repo and retrieving the id for version
+        let repo_id = insert_repo(&conn, &manifest).expect("could not insert repo");
+
+        //inserting versions as json string
+        for version in manifest.versions.iter() {
+            match conn.execute(
+                "INSERT INTO version (id_repo, details_json) VALUES (?1,?2)",
+                (repo_id, VersionDetails::parse(version).inner_ref()),
+            ) {
                 Ok(conn) => conn,
-                Err(_) => panic!("could not connect to the database"),
+                Err(_) => panic!("could not insert version"),
             };
+        }
+        conn.close().unwrap();
+    }
 
-            //creating repo and version tables with mapping
-            create_repo_tables(&conn);
-
-            //inserting repo and retrieving the id for version
-            let repo_id = insert_repo(&conn, &manifest).expect("could not insert repo");
-
-            //inserting versions as json string
-            for version in manifest.versions.iter() {
-                match conn.execute(
-                    "INSERT INTO version (id_repo, details_json) VALUES (?1,?2)",
-                    (repo_id, VersionDetails::parse(version).inner_ref()),
-                ) {
-                    Ok(conn) => conn,
-                    Err(_) => panic!("could not insert version"),
-                };
-            }
-        } */
-    } /*
-      //clear after adding to db
-      path.pop();
-      path.push("tmp");
-      remove_dir_all(path.clone()).unwrap(); */
+    //clear after adding to db
+    path.pop();
+    path.push("tmp");
+    remove_dir_all(path.clone()).unwrap();
 }
 
 pub fn create_repo_tables(conn: &Connection) {
+    conn.execute("PRAGMA foreign_keys = ON", []).unwrap();
+
     match conn.execute(
-        "CREATE TABLE IF NOT EXISTS repo (
-            id integer primary key AUTOINCREMENT,
+        "CREATE TABLE IF NOT EXISTS Repo (
+            id integer primary key,
             name text,
             authors text,
             git text
@@ -121,19 +134,21 @@ pub fn create_repo_tables(conn: &Connection) {
         [],
     ) {
         Ok(conn) => conn,
-        Err(_) => panic!("could not create table repo"),
+        Err(e) => panic!("{}", e),
     };
 
     match conn.execute(
-        "CREATE TABLE IF NOT EXISTS version (
-            id integer primary key AUTOINCREMENT,
-            id_repo integer FOREIGN KEY REFERENCES repo(id) NOT NULL,
+        "CREATE TABLE IF NOT EXISTS Version (
+            id integer primary key,
+            id_repo integer,
             details_json text,
+
+            FOREIGN KEY (id_repo) REFERENCES Repo(id)
         );",
         [],
     ) {
         Ok(conn) => conn,
-        Err(_) => panic!("could not create table repo"),
+        Err(e) => panic!("{}", e),
     };
 }
 
@@ -216,11 +231,17 @@ impl TryFrom<VersionDetails> for Ver {
 #[cfg(test)]
 mod tests {
 
+    use super::*;
+
     #[test]
     fn inserting_test_repo() {
-        /*  let mut path = std::env::current_dir().expect("Failed to determine the current directory");
+        let mut path = std::env::current_dir().expect("Failed to determine the current directory");
         path.push("tmp");
+        if !path.is_dir() {
+            create_dir_all(path.clone()).unwrap();
+        }
         path.push("test.db");
+        dbg!(&path);
         if !path.is_file() {
             File::create(path.clone()).unwrap();
         }
@@ -230,16 +251,31 @@ mod tests {
             Err(_) => panic!("could not connect to the database"),
         };
 
-        create_repo_tables(&conn); */
+        create_repo_tables(&conn);
         //compose manifest
-        // ....
+        let manifest = Project {
+            git: Some("git".to_owned()),
+            name: "name".to_owned(),
+            versions: vec![],
+            authors: vec![],
+        };
 
-        //insert manifest
-        // ....
+        //inserting repo and retrieving the id for version
+        let repo_id = insert_repo(&conn, &manifest).expect("could not insert repo");
 
-        //assert
-        // ....
-
-        assert_eq!(1, 1)
+        //inserting versions as json string
+        for version in manifest.versions.iter() {
+            match conn.execute(
+                "INSERT INTO version (id_repo, details_json) VALUES (?1,?2)",
+                (repo_id, VersionDetails::parse(version).inner_ref()),
+            ) {
+                Ok(conn) => conn,
+                Err(_) => panic!("could not insert version"),
+            };
+        }
+        conn.close().unwrap();
+        path.pop();
+        remove_dir_all(path.clone()).unwrap();
+        ()
     }
 }
