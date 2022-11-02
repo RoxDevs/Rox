@@ -64,9 +64,21 @@ pub fn add_repo(url: &str, conf: &Config) {
         repo.pop();
         repo.push("tmp");
         repo.push("repo");
+        #[cfg(target_os = "linux")]
         let manifest: Project = RawProject::create_from_file(
             format!(
                 "{}/{}",
+                repo.to_str().unwrap(),
+                file.file_name().to_str().unwrap()
+            )
+            .as_str(),
+        )
+        .unwrap()
+        .into();
+        #[cfg(target_os = "windows")]
+        let manifest: Project = RawProject::create_from_file(
+            format!(
+                r#"{}\{}"#,
                 repo.to_str().unwrap(),
                 file.file_name().to_str().unwrap()
             )

@@ -107,7 +107,10 @@ mod tests {
 
     #[test]
     fn from_str_tests() {
+        #[cfg(target_os = "linux")]
         let toml = include_str!("../../tomls/basic.toml");
+        #[cfg(target_os = "windows")]
+        let toml = include_str!(r#"..\..\tomls\basic.toml"#);
         let project = RawVer::create_from_str(toml).unwrap();
         assert_eq!(
             project,
@@ -124,7 +127,10 @@ mod tests {
 
     #[test]
     fn version_tests() {
+        #[cfg(target_os = "linux")]
         let toml = include_str!("../../tomls/basic.toml");
+        #[cfg(target_os = "windows")]
+        let toml = include_str!(r#"..\..\tomls\basic.toml"#);
         let raw = RawVer::create_from_str(toml).unwrap();
         let project: Ver = raw.into();
         assert_eq!(
@@ -144,7 +150,10 @@ mod tests {
 
     #[test]
     fn project_tests() {
+        #[cfg(target_os = "linux")]
         let toml = include_str!("../../tomls/simple-project.toml");
+        #[cfg(target_os = "windows")]
+        let toml = include_str!(r#"..\..\tomls\simple-project.toml"#);
         let raw = RawProject::create_from_str(toml).unwrap();
         let project: Project = raw.into();
         assert_eq!(
