@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 use toml::from_str;
@@ -6,10 +6,12 @@ use toml::from_str;
 // This is until the CLI is implemented
 #[allow(dead_code)]
 #[derive(Clone, PartialEq, Eq, Debug, Deserialize)]
+
 pub struct RawVer {
     dependencies: Vec<String>,
     version: String,
     tarballs: HashMap<String, (String, Vec<String>)>,
+    assets: Vec<String>,
 }
 
 // Until the CLI is built
@@ -31,18 +33,17 @@ impl Into<Ver> for RawVer {
             .iter()
             .map(|item| item.split('/').map(|string| string.to_string()).collect())
             .collect();
-        let version: Vec<usize> = self
-            .version
-            .split('.')
-            .map(|int| int.parse::<usize>().expect("invalid SemVer"))
-            .collect();
-        assert_eq!(3, version.len(), "invalid SemVer");
+        let assets = self
+            .assets
+            .clone()
+            .iter()
+            .map(|path| PathBuf::from_str(path).expect("invalid path"))
+            .collect::<Vec<PathBuf>>();
         Ver {
             dependencies,
-            major: version[0],
-            minor: version[1],
-            rev: version[2],
+            ver: self.version,
             tarballs: self.tarballs,
+            assets,
         }
     }
 }
@@ -51,9 +52,8 @@ impl Into<Ver> for RawVer {
 pub struct Ver {
     pub dependencies: Vec<Vec<String>>,
     pub tarballs: HashMap<String, (String, Vec<String>)>,
-    pub major: usize,
-    pub minor: usize,
-    pub rev: usize,
+    pub ver: String,
+    pub assets: Vec<PathBuf>,
 }
 
 #[derive(Clone, PartialEq, Eq, Debug, Deserialize)]
@@ -117,6 +117,7 @@ mod tests {
             RawVer {
                 dependencies: vec!["xxx/yyy".to_string()],
                 version: "0.1.0".to_string(),
+                assets: vec![],
                 tarballs: HashMap::from([(
                     "x86_64-unknown-linux-gnu".to_string(),
                     ("linux".to_string(), vec!["xxx".to_string()])
@@ -137,9 +138,8 @@ mod tests {
             project,
             Ver {
                 dependencies: vec![vec!["xxx".to_string(), "yyy".to_string()]],
-                major: 0,
-                minor: 1,
-                rev: 0,
+                ver: "0.1.0".to_string(),
+                assets: vec![],
                 tarballs: HashMap::from([(
                     "x86_64-unknown-linux-gnu".to_string(),
                     ("linux".to_string(), vec!["xxx".to_string()])
@@ -162,19 +162,17 @@ mod tests {
                 versions: vec![
                     Ver {
                         dependencies: vec![vec!["xxx".to_string(), "yyy".to_string()]],
-                        major: 0,
-                        minor: 1,
-                        rev: 0,
                         tarballs: HashMap::from([(
                             "x86_64-unknown-linux-gnu".to_string(),
                             ("linux".to_string(), vec!["xxx".to_string()])
                         ),]),
+                        ver: "0.1.0".to_string(),
+                        assets: vec![]
                     },
                     Ver {
                         dependencies: vec![vec!["xxx".to_string(), "yyy".to_string()]],
-                        major: 0,
-                        minor: 1,
-                        rev: 1,
+                        ver: "0.1.1".to_string(),
+                        assets: vec![],
                         tarballs: HashMap::from([(
                             "x86_64-unknown-linux-gnu".to_string(),
                             ("linux".to_string(), vec!["xxx".to_string()])

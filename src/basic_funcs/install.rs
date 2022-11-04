@@ -3,7 +3,7 @@ use std::{fs, path::PathBuf, str::FromStr};
 use git2::Repository;
 // use rusqlite::{Connection};
 use colored::Colorize;
-use rusqlite::{Connection, Result, NO_PARAMS};
+use rusqlite::{Connection, Result};
 
 use crate::config::Config;
 
@@ -15,7 +15,7 @@ struct Pkg {
     repo_url: String,
 }
 
-pub fn install(pkg_name: String, path: String, conf: &Config) {
+pub fn install(pkg_name: String, ver: Option<String>, conf: &Config) {
     let mut db_path = conf.path.clone();
     db_path.push("pakageLDB.db");
     println!("{}", format!("Installing {}\n", pkg_name).green().bold());
@@ -47,10 +47,6 @@ pub fn install(pkg_name: String, path: String, conf: &Config) {
 
         println!("Fetched data from DB\n");
         println!("{}", "Installing...\n".yellow());
-        let _repo = match Repository::clone(&result.get(0).unwrap().repo_url, &path) {
-            Ok(repo) => repo,
-            Err(e) => panic!("Installation Failed: {}", e),
-        };
         println!(
             "{}",
             format!("Finished Installation of package {}\n", pkg_name)
