@@ -8,26 +8,6 @@ use crate::{
     parser::{Project, RawProject, Ver},
 };
 
-
-pub fn add(package: String, pkg_name: String, ver: String, conf: &Config) {
-    let mut db_path = conf.path.clone();
-    db_path.push("pakageLDB.db");
-    let mut path = conf.path.clone();
-    path.push("pkgs");
-    path.push(format!("{}", pkg_name));
-    let a = || -> Result<()> {
-        let conn = Connection::open(format!("{}", db_path.to_str().unwrap()))?;
-        conn.execute(
-            "INSERT INTO pkgs (version, name, path, repo_url) VALUES (?1,?2,?3,?4)",
-            (ver, pkg_name, path.to_str(), package.to_string()),
-        )?;
-
-        Ok(())
-    };
-
-    a().unwrap();
-}
-
 pub fn add_repo(url: &str, conf: &Config) {
     let mut path = conf.path.clone();
 
@@ -86,8 +66,6 @@ pub fn add_repo(url: &str, conf: &Config) {
         )
         .unwrap()
         .into();
-        dbg!(manifest.clone());
-
         let mut db_path = conf.path.clone();
         db_path.push("pakageLDB.db");
 
@@ -110,11 +88,11 @@ pub fn add_repo(url: &str, conf: &Config) {
         };
 
         match conn.execute(
-            "CREATE TABLE IF NOT EXISTS version (
+            format!("CREATE TABLE IF NOT EXISTS {} (
                 id integer primary key AUTOINCREMENT,
                 id_repo integer FOREIGN KEY REFERENCES repo(id) NOT NULL,
                 details_json text,
-            );",
+            );", manifest.name).as_str(),
             [],
         ) {
             Ok(conn) => conn,
@@ -127,7 +105,7 @@ pub fn add_repo(url: &str, conf: &Config) {
         //inserting versions as json string
         for version in manifest.versions.iter() {
             match conn.execute(
-                "INSERT INTO version (id_repo, details_json) VALUES (?1,?2)",
+                format!("INSERT INTO {} (id_repo, details_json) VALUES (?1,?2)", manifest.name).as_str(),
                 (repo_id, VersionDetails::parse(version).inner_ref()),
             ) {
                 Ok(conn) => conn,
