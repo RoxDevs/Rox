@@ -8,6 +8,7 @@ use crate::{
     parser::{Project, RawProject, Ver},
 };
 
+
 pub fn add(package: String, pkg_name: String, ver: String, conf: &Config) {
     let mut db_path = conf.path.clone();
     db_path.push("pakageLDB.db");
@@ -26,6 +27,7 @@ pub fn add(package: String, pkg_name: String, ver: String, conf: &Config) {
 
     a().unwrap();
 }
+
 
 pub fn add_repo(url: &str, conf: &Config) {
     let mut path = conf.path.clone();
@@ -85,8 +87,7 @@ pub fn add_repo(url: &str, conf: &Config) {
         )
         .unwrap()
         .into();
-        dbg!(manifest.clone());
-
+        
         let mut db_path = conf.path.clone();
         db_path.push("pakageLDB.db");
 
@@ -95,6 +96,7 @@ pub fn add_repo(url: &str, conf: &Config) {
             Ok(conn) => conn,
             Err(_) => panic!("could not connect to the database"),
         };
+
 
         //creating repo and version tables with mapping
         create_repo_tables(&conn);
@@ -105,7 +107,7 @@ pub fn add_repo(url: &str, conf: &Config) {
         //inserting versions as json string
         for version in manifest.versions.iter() {
             match conn.execute(
-                "INSERT INTO version (id_repo, details_json) VALUES (?1,?2)",
+                format!("INSERT INTO {} (id_repo, details_json) VALUES (?1,?2)", manifest.name).as_str(),
                 (repo_id, VersionDetails::parse(version).inner_ref()),
             ) {
                 Ok(conn) => conn,
