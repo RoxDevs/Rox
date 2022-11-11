@@ -36,6 +36,7 @@ mod tests {
     fn basic_test() {
         #[cfg(target_os = "linux")]
         let config: Config = RawConfig::from_str(include_str!("../configs/example.toml"))
+
             .unwrap()
             .into();
         #[cfg(target_os = "windows")]
