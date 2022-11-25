@@ -1,9 +1,7 @@
 #[allow(unused_variables)]
 
 use clap::{Parser, Subcommand};
-use git2::Repository;
-use rand::distributions::{Alphanumeric, DistString};
-use std::fs;
+//use std::fs;
 use rusqlite::{params, Connection, Result};
 
 mod parser;
@@ -15,61 +13,49 @@ struct Cli {
     #[clap(subcommand)]
     command: Commands,
 }
+struct pkgtoin {
+    name: String,
+    tarball: String,
+}
 
 #[derive(Subcommand)]
 enum Commands {
     /// install a package
     Install { package: Option<String> },
-    /// remove the source code of the packages
-    Remove { package: Option<String> },
 }
 
 fn main() {
     let cli = Cli::parse();
-    let url = "https://github.com/RK33DV/unitytergen";
-    let fldr = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
-    let path = format!("RoxPaks/Packages/src/{}", fldr);
-    let ver = "2".to_string();
     match &cli.command {
         Commands::Install { package } => {
-            println!("Installing{:?}", package);
-            let mut a = || -> Result<()> {
-                let conn = Connection::open("src/packageLDB.db")?;
-                conn.execute(
-                    "INSERT INTO pkgs (version, name, path, repo_url) VALUES (?1,?2,?3,?4)",
-                    (&ver, &package, &fldr, &url.to_string()),
-                )?;
+            //let mut a = || -> Result<()> {
+                //let pak = package.unwrap();
+                //let conn = Connection::open("src/packageLDB.db")?;
+                //conn.execute(
+                    //"SELECT * FROM package WHERE name LIKE '%?1%'",
+                    //params![package]
+                //);
             
-                Ok(())
-            };
-            a();
-            let pkg_url = package.clone();
-            let pkg_url2 = pkg_url.unwrap();
-
-            let _repo = match Repository::clone(pkg_url2.as_str(), path) {
-                Ok(repo) => repo,
-                Err(e) => panic!("installation failed : {}", e),
-            };
-
-        }
-        Commands::Remove { package } => {
-            let mut search = || -> Result<()> {
-                let conn = Connection::open("src/packageLDB.db")?;
-                conn.execute(
-                    "DELETE FROM pkgs
-                    WHERE name = ?1;",
-                    (&package,)
-                )?;
-            
-                Ok(())
-            };
+                //Ok(())
+            //};
+            //a();
             search();
-
-            println!("Removing source code...");
-
-            fs::remove_dir_all("RoxPaks")
-            .expect("Error removing source code :(");
-         println!("source code removed successfully!");
-    }
+        }
 }
-} 
+}
+
+fn search() -> Result<()> {
+    let cron = Connection::open("src/packageLDB.db");
+    let mut stmt = cron.prepare("SELECT name,tarball FROM package WHERE name LIKE '%(?1)%'")?;
+    params!(String::from("cpp"));
+    let ballz = stmt.query_map([], |row| {
+        Ok(pkgtoin {
+            name: row.get(0)?,
+            tarball: row.get(1)?,
+            })
+        })?;
+    for pkgtoin in ballz {
+        println!("based");
+    }
+    Ok(())
+}
