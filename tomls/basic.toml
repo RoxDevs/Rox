@@ -1,5 +1,0 @@
-dependencies = ["xxx/yyy"]
-version = "0.1.0"
-assets = []
-[tarballs]
-x86_64-unknown-linux-gnu = ["linux", ["xxx"]]

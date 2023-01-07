@@ -1,0 +1,17 @@
+version: "3"
+
+tasks:
+  build:
+    cmds:
+      - go build -v
+    generates:
+      - Rox
+  clean:
+    cmds:
+      - find . -type f -executable | xargs -n 1 rm
+      - go clean
+  run:
+    deps: [build]
+    cmds:
+      - defer: { task: clean }
+      - ./Rox {{.CLI_ARGS}}
